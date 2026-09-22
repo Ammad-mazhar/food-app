@@ -92,7 +92,7 @@ export default function AboutPage() {
   return (
     <div>
       {/* Hero */}
-      <section className="relative -mt-20 flex h-[70vh] min-h-[440px] w-full items-end overflow-hidden border-b border-border">
+      <section className="relative -mt-20 flex h-[70vh] min-h-110 w-full items-end overflow-hidden border-b border-border">
         <video
           className="absolute inset-0 h-full w-full object-cover"
           autoPlay
@@ -104,7 +104,7 @@ export default function AboutPage() {
         >
           <source src={aboutHeroVideo.src} type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-t from-bg via-black/60 to-black/40" />
+        <div className="absolute inset-0 bg-linear-to-t from-bg via-black/60 to-black/40" />
         <div className="animate-hero relative z-10 mx-auto w-full max-w-6xl px-4 pb-14 pt-20 sm:px-6">
           <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-gold/30 bg-black/30 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-gold-soft backdrop-blur-sm">
             <FlameIcon className="animate-flame h-3.5 w-3.5" />
@@ -181,7 +181,7 @@ export default function AboutPage() {
             </Link>
           </div>
         </div>
-        <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl border border-border">
+        <div className="relative aspect-4/5 w-full overflow-hidden rounded-2xl border border-border">
           <Image
             src={aboutPhotos.pour.src}
             alt={aboutPhotos.pour.alt}
@@ -215,7 +215,7 @@ export default function AboutPage() {
                 className="grid gap-6 md:grid-cols-2 md:items-center md:gap-10"
               >
                 <div
-                  className={`relative aspect-[16/10] w-full overflow-hidden rounded-2xl border border-border ${
+                  className={`relative aspect-16/10 w-full overflow-hidden rounded-2xl border border-border ${
                     i % 2 === 1 ? "md:order-2" : ""
                   }`}
                 >
@@ -264,7 +264,7 @@ export default function AboutPage() {
               key={block.title}
               className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-surface"
             >
-              <div className="relative aspect-[16/9] w-full">
+              <div className="relative aspect-video w-full">
                 <Image
                   src={block.photo.src}
                   alt={block.photo.alt}
@@ -274,7 +274,7 @@ export default function AboutPage() {
                 />
                 {/* Fades the photo into the card so the band reads as part of
                     the card rather than a pasted-on thumbnail. */}
-                <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/30 to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-t from-surface via-surface/30 to-transparent" />
                 <div className="absolute bottom-4 left-5 flex h-12 w-12 items-center justify-center rounded-full border border-gold/40 bg-black/50 text-gold backdrop-blur-sm">
                   <block.icon className="h-6 w-6" />
                 </div>
@@ -331,7 +331,7 @@ export default function AboutPage() {
       {/* Hygiene & food safety */}
       <section className="reveal mx-auto max-w-6xl px-4 py-16 sm:px-6">
         <div className="grid gap-10 md:grid-cols-2 md:items-center">
-          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-border">
+          <div className="relative aspect-4/3 w-full overflow-hidden rounded-2xl border border-border">
             <Image
               src={aboutPhotos.kitchenAction.src}
               alt={aboutPhotos.kitchenAction.alt}
@@ -387,7 +387,7 @@ export default function AboutPage() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="grid gap-10 md:grid-cols-2 md:items-center">
             <div className="md:order-2">
-              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-border">
+              <div className="relative aspect-4/3 w-full overflow-hidden rounded-2xl border border-border">
                 <Image
                   src={aboutPhotos.prep.src}
                   alt={aboutPhotos.prep.alt}
@@ -496,7 +496,7 @@ export default function AboutPage() {
             ].map((photo) => (
               <div
                 key={photo.src}
-                className="relative aspect-[4/3] overflow-hidden rounded-xl border border-border"
+                className="relative aspect-4/3 overflow-hidden rounded-xl border border-border"
               >
                 <Image
                   src={photo.src}

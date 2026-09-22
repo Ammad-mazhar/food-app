@@ -73,7 +73,7 @@ export default function Home() {
   return (
     <div>
       {/* Hero — full-bleed video banner */}
-      <section className="relative -mt-20 flex h-[94vh] min-h-[600px] w-full items-center overflow-hidden border-b border-border">
+      <section className="relative -mt-20 flex h-[94vh] min-h-150 w-full items-center overflow-hidden border-b border-border">
         <video
           className="absolute inset-0 h-full w-full object-cover"
           autoPlay
@@ -85,8 +85,8 @@ export default function Home() {
         >
           <source src={heroVideo.src} type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-t from-bg via-black/55 to-black/60" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-bg via-black/55 to-black/60" />
+        <div className="absolute inset-0 bg-linear-to-r from-black/70 via-black/20 to-transparent" />
 
         <div className="animate-hero relative z-10 mx-auto w-full max-w-6xl px-4 pt-20 sm:px-6">
           <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-gold/30 bg-black/30 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-gold-soft backdrop-blur-sm">
@@ -236,7 +236,7 @@ export default function Home() {
       {/* Our Story teaser */}
       <section className="reveal border-b border-border py-16">
         <div className="mx-auto grid max-w-6xl gap-10 px-4 sm:px-6 md:grid-cols-2 md:items-center">
-          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-border md:order-2">
+          <div className="relative aspect-4/3 w-full overflow-hidden rounded-2xl border border-border md:order-2">
             <Image
               src={aboutPhotos.platter.src}
               alt={aboutPhotos.platter.alt}
@@ -303,7 +303,7 @@ export default function Home() {
               Behind the Flame
             </h2>
           </div>
-          <div className="grid grid-cols-2 auto-rows-[130px] gap-3 sm:auto-rows-[150px] sm:gap-4 md:grid-cols-4 md:auto-rows-[170px]">
+          <div className="grid grid-cols-2 auto-rows-32.5 gap-3 sm:auto-rows-37.5 sm:gap-4 md:grid-cols-4 md:auto-rows-42.5">
             {galleryPhotos.map((photo, i) => (
               <div
                 key={photo.src}
@@ -384,7 +384,7 @@ export default function Home() {
       </section>
 
       {/* CTA banner */}
-      <section className="reveal relative flex min-h-[360px] items-center overflow-hidden border-b border-border">
+      <section className="reveal relative flex min-h-90 items-center overflow-hidden border-b border-border">
         <video
           className="absolute inset-0 h-full w-full object-cover"
           autoPlay
@@ -396,7 +396,7 @@ export default function Home() {
         >
           <source src={ctaVideo.src} type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-t from-bg via-black/70 to-black/50" />
+        <div className="absolute inset-0 bg-linear-to-t from-bg via-black/70 to-black/50" />
         <div className="relative z-10 mx-auto w-full max-w-3xl px-4 text-center sm:px-6">
           <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-gold/30 bg-black/30 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-gold-soft backdrop-blur-sm">
             <FlameIcon className="animate-flame h-3.5 w-3.5" />

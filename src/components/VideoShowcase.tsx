@@ -51,7 +51,7 @@ export default function VideoShowcase({
               sizes="(min-width: 1024px) 960px, 100vw"
               className="object-cover transition duration-700 group-hover:scale-105"
             />
-            <span className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-black/30" />
+            <span className="absolute inset-0 bg-linear-to-t from-black/80 via-black/25 to-black/30" />
             <span className="absolute inset-0 flex items-center justify-center">
               <span className="flex h-20 w-20 items-center justify-center rounded-full border border-gold/50 bg-black/50 text-gold backdrop-blur-sm transition group-hover:scale-110 group-hover:bg-black/70">
                 <svg viewBox="0 0 24 24" fill="currentColor" className="ml-1 h-8 w-8">

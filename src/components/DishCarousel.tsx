@@ -123,7 +123,7 @@ export default function DishCarousel({
 
   return (
     <div
-      className="relative h-[520px] w-full overflow-hidden rounded-2xl border border-border bg-bg-elevated sm:h-[560px]"
+      className="relative h-130 w-full overflow-hidden rounded-2xl border border-border bg-bg-elevated sm:h-140"
       role="group"
       aria-roledescription="carousel"
       aria-label={label}
@@ -164,13 +164,13 @@ export default function DishCarousel({
               fill
               priority={i === 0}
               sizes="(min-width: 1024px) 1024px, 100vw"
-              className={`object-cover transition-transform duration-[6000ms] ease-out ${
+              className={`object-cover transition-transform duration-6000 ease-out ${
                 i === index ? "scale-105" : "scale-100"
               }`}
             />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-black/25" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/45 to-black/25" />
+          <div className="absolute inset-0 bg-linear-to-r from-black/70 via-transparent to-transparent" />
         </div>
       ))}
 

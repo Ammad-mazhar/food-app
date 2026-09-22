@@ -53,7 +53,7 @@ export default async function DishPage({ params }: PageProps<"/menu/[id]">) {
       </nav>
 
       <div className="grid gap-10 md:grid-cols-2 md:items-start">
-        <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-border bg-bg-elevated">
+        <div className="relative aspect-4/3 w-full overflow-hidden rounded-2xl border border-border bg-bg-elevated">
           {item.image ? (
             <Image
               src={item.image}

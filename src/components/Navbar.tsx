@@ -54,7 +54,7 @@ export default function Navbar() {
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
         solid
           ? "border-b border-border bg-bg/95 shadow-lg shadow-black/30 backdrop-blur-md"
-          : "border-b border-transparent bg-gradient-to-b from-black/55 via-black/20 to-transparent"
+          : "border-b border-transparent bg-linear-to-b from-black/55 via-black/20 to-transparent"
       }`}
     >
       <nav className="mx-auto flex h-20 max-w-6xl items-center justify-between px-4 sm:px-6">

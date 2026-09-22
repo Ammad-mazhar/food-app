@@ -184,6 +184,20 @@ export const aboutPhotos = {
  * inventing those would be a false claim rather than marketing copy.
  * ------------------------------------------------------------------------ */
 
+/**
+ * ⚠️ PLACEHOLDER — this is NOT a real phone number. It's wired to the
+ * floating "Book a Table" hub so the flow can be demoed, and the 0000000
+ * subscriber part is deliberately un-dialable so nobody reaches a stranger.
+ * Replace both fields with the real booking line before publishing.
+ * (`restaurantInfo.phone` above is the publicly listed number and is left
+ * alone — swap this one, or point it at that, whichever you want callers to
+ * reach.)
+ */
+export const bookingPhone = {
+  display: "+92 300 0000000",
+  href: "tel:+923000000000",
+};
+
 export const heritage = {
   foundedYear: 2011,
   /** Rendered as "Est. 2011" badges and "since 2011" copy across the About page. */

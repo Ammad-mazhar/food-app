@@ -4,6 +4,7 @@ import { CartProvider } from "@/context/CartContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import RevealObserver from "@/components/RevealObserver";
+import FloatingHub from "@/components/FloatingHub";
 
 export const metadata: Metadata = {
   title: "Texas Steak House | Rawalpindi's Home of Fire-Grilled Steaks",
@@ -24,6 +25,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <Navbar />
           <main className="flex-1 pt-20">{children}</main>
           <Footer />
+          <FloatingHub />
           <RevealObserver />
         </CartProvider>
       </body>

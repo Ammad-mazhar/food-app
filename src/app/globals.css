@@ -261,6 +261,23 @@ body {
   }
 }
 
+/* Autoplay progress bar under the homepage dish carousel. The duration is
+   set inline from the carousel's interval, and the element is re-keyed per
+   slide so the sweep restarts. */
+@keyframes carousel-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.animate-carousel-progress {
+  transform-origin: left center;
+  animation: carousel-progress linear forwards;
+}
+
 /* Bouncing scroll cue at the bottom of the hero video */
 @keyframes scroll-cue-bounce {
   0%,

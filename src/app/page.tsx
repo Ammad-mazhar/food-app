@@ -1,9 +1,19 @@
 import Link from "next/link";
 import Image from "next/image";
 import { menuItems } from "@/lib/data";
-import { restaurantInfo, heroVideo, ctaVideo, galleryPhotos, aboutPhotos } from "@/lib/restaurant";
+import {
+  restaurantInfo,
+  heroVideo,
+  ctaVideo,
+  galleryPhotos,
+  aboutPhotos,
+  dishCarouselSlides,
+  roomCarouselSlides,
+  heritage,
+} from "@/lib/restaurant";
 import MenuItemCard from "@/components/MenuItemCard";
 import StatCounter from "@/components/StatCounter";
+import DishCarousel from "@/components/DishCarousel";
 import {
   StarIcon,
   PinIcon,
@@ -194,6 +204,23 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Autoplaying dish carousel */}
+      <section className="reveal mx-auto max-w-6xl px-4 py-16 sm:px-6">
+        <div className="mb-8 text-center">
+          <span className="text-xs font-semibold uppercase tracking-widest text-gold">
+            Straight Off The Grill
+          </span>
+          <h2 className="mt-1 font-display text-2xl font-bold text-cream sm:text-3xl">
+            What We&apos;re Known For
+          </h2>
+          <p className="mx-auto mt-3 max-w-xl text-sm text-muted">
+            Eight of the plates that keep Saddar coming back. Hover to pause,
+            or use the arrows to take your time.
+          </p>
+        </div>
+        <DishCarousel slides={dishCarouselSlides} />
+      </section>
+
       {/* Why choose us */}
       <section className="reveal mx-auto max-w-6xl px-4 py-16 sm:px-6">
         <div className="mb-10 text-center">
@@ -242,11 +269,11 @@ export default function Home() {
               Built Around the Grill
             </h2>
             <p className="mt-4 text-muted">
-              {restaurantInfo.name} started with one idea: cook everything
-              fresh, over real fire, and never take shortcuts. That&apos;s still
-              the standard today across both our Saddar and E-7 locations —
-              hand-cut steaks, made-to-order sides, and nothing pulled from a
-              freezer.
+              {restaurantInfo.name} opened in {heritage.foundedYear} with one
+              idea: cook everything fresh, over real fire, and never take
+              shortcuts. That&apos;s still the standard today across both our
+              Saddar and E-7 locations — hand-cut steaks, made-to-order sides,
+              and nothing pulled from a freezer.
             </p>
             <Link
               href="/about"
@@ -255,6 +282,29 @@ export default function Home() {
               Read our full story →
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* Room carousel */}
+      <section className="reveal border-b border-border bg-bg-elevated py-16">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="mb-8 text-center">
+            <span className="text-xs font-semibold uppercase tracking-widest text-gold">
+              Step Inside
+            </span>
+            <h2 className="mt-1 font-display text-2xl font-bold text-cream sm:text-3xl">
+              The Room You&apos;ll Be Eating In
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-sm text-muted">
+              Photographed at our own tables — no stock shots, no renders.
+            </p>
+          </div>
+          <DishCarousel
+            slides={roomCarouselSlides}
+            label="Inside the restaurant"
+            ctaLabel="Book a Table"
+            interval={6000}
+          />
         </div>
       </section>
 

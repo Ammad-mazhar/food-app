@@ -1,0 +1,285 @@
+@import "tailwindcss";
+
+/*
+ * Texas Steak House is a single, deliberately dark/gold branded aesthetic —
+ * like most upscale steakhouse sites, it doesn't have a "light mode"
+ * variant, so color-scheme is pinned to dark rather than following the
+ * visitor's system preference. Native form controls, scrollbars etc. are
+ * themed to match via color-scheme.
+ */
+:root {
+  color-scheme: dark;
+
+  --color-bg: #0b0908;
+  --color-bg-elevated: #15100d;
+  --color-surface: #1e1712;
+  --color-surface-hover: #271e17;
+  --color-border: rgba(232, 205, 138, 0.14);
+  --color-border-strong: rgba(232, 205, 138, 0.28);
+
+  --color-gold: #c9a24b;
+  --color-gold-soft: #e8cd8a;
+  --color-ember: #b3432b;
+  --color-ember-soft: #d9613f;
+
+  --color-cream: #f3ead9;
+  --color-muted: rgba(243, 234, 217, 0.64);
+  --color-faint: rgba(243, 234, 217, 0.4);
+
+  --font-display: Georgia, "Iowan Old Style", "Times New Roman", serif;
+}
+
+@theme inline {
+  --color-background: var(--color-bg);
+  --color-foreground: var(--color-cream);
+  --color-bg: var(--color-bg);
+  --color-bg-elevated: var(--color-bg-elevated);
+  --color-surface: var(--color-surface);
+  --color-surface-hover: var(--color-surface-hover);
+  --color-border: var(--color-border);
+  --color-border-strong: var(--color-border-strong);
+  --color-gold: var(--color-gold);
+  --color-gold-soft: var(--color-gold-soft);
+  --color-ember: var(--color-ember);
+  --color-ember-soft: var(--color-ember-soft);
+  --color-cream: var(--color-cream);
+  --color-muted: var(--color-muted);
+  --color-faint: var(--color-faint);
+  --font-display: var(--font-display);
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-cream);
+}
+
+::selection {
+  background: var(--color-gold);
+  color: var(--color-bg);
+}
+
+/* Subtle brand scrollbar */
+* {
+  scrollbar-color: var(--color-gold) var(--color-bg-elevated);
+}
+
+/* A faint diagonal grill-line texture, used behind hero/dark sections */
+.texture-grill {
+  background-image: repeating-linear-gradient(
+    115deg,
+    rgba(232, 205, 138, 0.05) 0px,
+    rgba(232, 205, 138, 0.05) 1px,
+    transparent 1px,
+    transparent 26px
+  );
+}
+
+.text-gradient-gold {
+  background: linear-gradient(
+    100deg,
+    var(--color-gold-soft),
+    var(--color-gold) 55%,
+    var(--color-ember-soft)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/*
+ * Scroll reveal: fades + rises sections into view as they scroll into the
+ * viewport. Content is visible by default (`.reveal` alone has no hidden
+ * state) — a small IntersectionObserver (RevealObserver component) adds
+ * `.reveal-pending` only to sections that are below the fold at mount time,
+ * then removes it once they're scrolled into view. If JS never runs, or a
+ * browser/tool resizes the viewport to the full page height (as some
+ * screenshot tools do), nothing is ever hidden.
+ */
+.reveal {
+  transition:
+    opacity 0.7s ease,
+    translate 0.7s ease;
+}
+
+.reveal.reveal-pending {
+  opacity: 0;
+  translate: 0 28px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal.reveal-pending {
+    opacity: 1;
+    translate: none;
+  }
+}
+
+/* Slow drifting shimmer used on the glass footer's top border */
+@keyframes shimmer-drift {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+/*
+ * Hero entrance: each direct child of `.animate-hero` fades + rises in with
+ * a short stagger, purely on mount (a plain CSS animation, not tied to
+ * scroll) — used for the hero copy stack on the home and about pages.
+ */
+@keyframes fade-rise-in {
+  from {
+    opacity: 0;
+    translate: 0 18px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+.animate-hero > * {
+  opacity: 0;
+  animation: fade-rise-in 0.7s ease forwards;
+}
+.animate-hero > *:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.animate-hero > *:nth-child(2) {
+  animation-delay: 0.16s;
+}
+.animate-hero > *:nth-child(3) {
+  animation-delay: 0.27s;
+}
+.animate-hero > *:nth-child(4) {
+  animation-delay: 0.38s;
+}
+.animate-hero > *:nth-child(5) {
+  animation-delay: 0.49s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-hero > * {
+    opacity: 1;
+    animation: none;
+  }
+}
+
+/* A gentle, continuous flicker for flame-icon accents in badges */
+@keyframes flame-flicker {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.06) rotate(-4deg);
+  }
+  50% {
+    transform: scale(0.96) rotate(3deg);
+  }
+  75% {
+    transform: scale(1.03) rotate(-2deg);
+  }
+}
+
+.animate-flame {
+  display: inline-flex;
+  transform-origin: 60% 90%;
+  animation: flame-flicker 2.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-flame {
+    animation: none;
+  }
+}
+
+/* A quick, springy "pop" — used when an item is added to the cart */
+@keyframes pop {
+  0% {
+    scale: 1;
+  }
+  40% {
+    scale: 1.12;
+  }
+  100% {
+    scale: 1;
+  }
+}
+
+.animate-pop {
+  animation: pop 0.35s ease;
+}
+
+/* Cart badge count bump — replayed by remounting with a new `key` */
+@keyframes badge-pop {
+  0% {
+    scale: 0.4;
+    opacity: 0;
+  }
+  60% {
+    scale: 1.3;
+    opacity: 1;
+  }
+  100% {
+    scale: 1;
+  }
+}
+
+.animate-badge-pop {
+  animation: badge-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Menu/dish cards fade + rise in whenever they mount (first paint, or a
+   filter change that remounts the grid). */
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    translate: 0 12px;
+    scale: 0.98;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+  }
+}
+
+.animate-card-enter {
+  animation: card-enter 0.45s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-pop,
+  .animate-badge-pop,
+  .animate-card-enter {
+    animation: none;
+  }
+}
+
+/* Bouncing scroll cue at the bottom of the hero video */
+@keyframes scroll-cue-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(8px);
+    opacity: 1;
+  }
+}
+
+.animate-scroll-cue {
+  animation: scroll-cue-bounce 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-scroll-cue {
+    animation: none;
+  }
+}

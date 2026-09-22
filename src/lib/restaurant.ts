@@ -3,6 +3,18 @@
 // for this demo — actual menu items were confirmed, but public prices were
 // not available, so contact the restaurant to confirm current pricing.
 
+/**
+ * Absolute base URL, used by `metadataBase`, the sitemap and robots.txt so
+ * social previews and crawlers resolve correctly.
+ *
+ * ⚠️ The fallback is a placeholder — this site has no domain yet. Set
+ * NEXT_PUBLIC_SITE_URL in the deployment environment (no trailing slash), or
+ * edit the fallback, before going live. Getting this wrong means share cards
+ * and sitemap entries point at the wrong host.
+ */
+export const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://texas-steak-house.example.com";
+
 export const restaurantInfo = {
   name: "Texas Steak House",
   tagline: "Rawalpindi's Home of Fire-Grilled Steaks",
@@ -19,6 +31,41 @@ export const restaurantInfo = {
     "https://www.tripadvisor.com/Restaurant_Review-g298423-d817436-Reviews-Texas_steak_house-Rawalpindi_Punjab_Province.html",
   mapsQuery: "Texas Steak House, Zarkon Plaza, Adamjee Road, Saddar, Rawalpindi",
 } as const;
+
+/**
+ * Both branches, shared by the homepage "Our Locations" section and the
+ * footer so the two can't drift apart.
+ */
+export const locations = [
+  {
+    label: "Saddar, Rawalpindi",
+    address: restaurantInfo.address,
+    hours: restaurantInfo.hours,
+    phone: restaurantInfo.phone as string | undefined,
+    query: restaurantInfo.mapsQuery,
+  },
+  {
+    label: "E-7, Islamabad",
+    address: "Shaheen Market, Sector E-7, Islamabad, Pakistan",
+    hours: restaurantInfo.hours,
+    phone: undefined,
+    query: "Texas Steak House, Shaheen Market, E-7, Islamabad",
+  },
+] as const;
+
+/**
+ * Social profiles shown in the footer.
+ *
+ * ⚠️ PLACEHOLDER URLs — these point at handles we have not verified as
+ * belonging to this restaurant. Replace each `href` with the real profile (or
+ * delete the entry) before publishing; a wrong link sends customers to
+ * somebody else's page.
+ */
+export const socialLinks = [
+  { label: "Facebook", href: "https://facebook.com/", key: "facebook" },
+  { label: "Instagram", href: "https://instagram.com/", key: "instagram" },
+  { label: "WhatsApp", href: "https://wa.me/", key: "whatsapp" },
+] as const;
 
 /** Hero video (fire-grill flambé) shown on the homepage banner. */
 export const heroVideo = {

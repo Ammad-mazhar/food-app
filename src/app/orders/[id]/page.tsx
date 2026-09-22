@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Order } from "@/lib/types";
 import { ordersStore } from "@/lib/storage";
 import { formatPrice } from "@/lib/utils";
+import OrderActions from "@/components/OrderActions";
 
 const statusSteps: Order["status"][] = [
   "placed",
@@ -53,39 +54,54 @@ export default function OrderDetailPage() {
 
   const steps = order.type === "delivery" ? statusSteps : pickupSteps;
   const currentIndex = steps.indexOf(order.status);
+  const cancelled = order.status === "cancelled";
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-      <div className="mb-6 rounded-xl border border-gold/30 bg-surface p-5 text-center">
-        <h1 className="font-display text-xl font-bold text-gold-soft">
-          Order placed successfully!
+      <div
+        className={`mb-6 rounded-xl border p-5 text-center ${
+          cancelled ? "border-ember/40 bg-ember/10" : "border-gold/30 bg-surface"
+        }`}
+      >
+        <h1
+          className={`font-display text-xl font-bold ${
+            cancelled ? "text-ember-soft" : "text-gold-soft"
+          }`}
+        >
+          {cancelled ? "This order was cancelled" : "Order placed successfully!"}
         </h1>
         <p className="text-sm text-muted">Order ID: {order.id}</p>
       </div>
 
       {/* Status tracker */}
-      <div className="mb-8 rounded-xl border border-border bg-surface p-6">
-        <h2 className="mb-4 font-display font-semibold text-cream">
-          Order Status
-        </h2>
-        <div className="flex items-center justify-between">
-          {steps.map((step, index) => (
-            <div key={step} className="flex flex-1 flex-col items-center">
-              <div
-                className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${
-                  index <= currentIndex
-                    ? "bg-gold text-bg"
-                    : "bg-bg-elevated text-faint"
-                }`}
-              >
-                {index + 1}
+      {!cancelled && (
+        <div className="mb-8 rounded-xl border border-border bg-surface p-6">
+          <h2 className="mb-4 font-display font-semibold text-cream">
+            Order Status
+          </h2>
+          <div className="flex items-center justify-between">
+            {steps.map((step, index) => (
+              <div key={step} className="flex flex-1 flex-col items-center">
+                <div
+                  className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${
+                    index <= currentIndex
+                      ? "bg-gold text-bg"
+                      : "bg-bg-elevated text-faint"
+                  }`}
+                >
+                  {index + 1}
+                </div>
+                <span className="mt-2 text-center text-[11px] capitalize text-muted">
+                  {step.replace(/-/g, " ")}
+                </span>
               </div>
-              <span className="mt-2 text-center text-[11px] capitalize text-muted">
-                {step.replace(/-/g, " ")}
-              </span>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
+      )}
+
+      <div className="mb-8 flex justify-center">
+        <OrderActions order={order} layout="stack" />
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2">
@@ -122,14 +138,21 @@ export default function OrderDetailPage() {
         <div className="rounded-xl border border-border bg-surface p-6">
           <h2 className="mb-3 font-display font-semibold text-cream">Items</h2>
           <ul className="mb-3 space-y-1 text-sm text-muted">
-            {order.lines.map(({ item, quantity }) => (
-              <li key={item.id} className="flex justify-between">
-                <span>
-                  {quantity} × {item.name}
-                </span>
-                <span className="text-cream">
-                  {formatPrice(item.price * quantity)}
-                </span>
+            {order.lines.map(({ item, quantity, notes }) => (
+              <li key={item.id}>
+                <div className="flex justify-between">
+                  <span>
+                    {quantity} × {item.name}
+                  </span>
+                  <span className="text-cream">
+                    {formatPrice(item.price * quantity)}
+                  </span>
+                </div>
+                {notes && (
+                  <p className="mt-0.5 text-xs italic text-faint">
+                    &ldquo;{notes}&rdquo;
+                  </p>
+                )}
               </li>
             ))}
           </ul>

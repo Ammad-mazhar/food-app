@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 import { formatPrice, generateId } from "@/lib/utils";
 import { saveOrder } from "@/lib/storage";
 import { Order, OrderType } from "@/lib/types";
@@ -20,6 +21,17 @@ export default function CheckoutPage() {
     useState<Order["paymentMethod"]>("cash");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+
+  // Fill the form from the signed-in profile once per account, adjusted during
+  // render so it lands before first paint and never clobbers later typing.
+  const { account } = useAuth();
+  const [prefilledFor, setPrefilledFor] = useState<string | null>(null);
+  if (account && prefilledFor !== account.id) {
+    setPrefilledFor(account.id);
+    setName(account.name);
+    if (account.phone) setPhone(account.phone);
+    if (account.address) setAddress(account.address);
+  }
 
   if (lines.length === 0) {
     return (
@@ -111,29 +123,74 @@ export default function CheckoutPage() {
             <h2 className="mb-3 font-display text-lg font-semibold text-cream">
               Contact Details
             </h2>
+            {account ? (
+              <p className="mb-3 text-sm text-muted">
+                Filled in from your account.{" "}
+                <Link href="/account" className="text-gold-soft hover:underline">
+                  Update details
+                </Link>
+              </p>
+            ) : (
+              <p className="mb-3 text-sm text-muted">
+                <Link href="/login" className="text-gold-soft hover:underline">
+                  Log in
+                </Link>{" "}
+                to fill this in automatically next time.
+              </p>
+            )}
             <div className="flex flex-col gap-3">
-              <input
-                type="text"
-                placeholder="Full name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className={inputClass}
-              />
-              <input
-                type="tel"
-                placeholder="Phone number"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className={inputClass}
-              />
-              {orderType === "delivery" && (
-                <textarea
-                  placeholder="Delivery address"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  rows={3}
-                  className={inputClass}
+              <div>
+                <label
+                  htmlFor="checkout-name"
+                  className="mb-1 block text-sm font-medium text-cream"
+                >
+                  Full name
+                </label>
+                <input
+                  id="checkout-name"
+                  type="text"
+                  autoComplete="name"
+                  placeholder="Full name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className={`${inputClass} w-full`}
                 />
+              </div>
+              <div>
+                <label
+                  htmlFor="checkout-phone"
+                  className="mb-1 block text-sm font-medium text-cream"
+                >
+                  Phone number
+                </label>
+                <input
+                  id="checkout-phone"
+                  type="tel"
+                  autoComplete="tel"
+                  placeholder="03XX-XXXXXXX"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className={`${inputClass} w-full`}
+                />
+              </div>
+              {orderType === "delivery" && (
+                <div>
+                  <label
+                    htmlFor="checkout-address"
+                    className="mb-1 block text-sm font-medium text-cream"
+                  >
+                    Delivery address
+                  </label>
+                  <textarea
+                    id="checkout-address"
+                    autoComplete="street-address"
+                    placeholder="House, street, area, city"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    rows={3}
+                    className={`${inputClass} w-full`}
+                  />
+                </div>
               )}
             </div>
           </div>
@@ -183,14 +240,21 @@ export default function CheckoutPage() {
             Order Summary
           </h2>
           <ul className="mb-4 space-y-1 text-sm text-muted">
-            {lines.map(({ item, quantity }) => (
-              <li key={item.id} className="flex justify-between">
-                <span>
-                  {quantity} × {item.name}
-                </span>
-                <span className="text-cream">
-                  {formatPrice(item.price * quantity)}
-                </span>
+            {lines.map(({ item, quantity, notes }) => (
+              <li key={item.id}>
+                <div className="flex justify-between">
+                  <span>
+                    {quantity} × {item.name}
+                  </span>
+                  <span className="text-cream">
+                    {formatPrice(item.price * quantity)}
+                  </span>
+                </div>
+                {notes && (
+                  <p className="mt-0.5 text-xs italic text-faint">
+                    &ldquo;{notes}&rdquo;
+                  </p>
+                )}
               </li>
             ))}
           </ul>

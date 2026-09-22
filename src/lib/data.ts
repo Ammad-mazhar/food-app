@@ -161,6 +161,7 @@ export const menuItems: MenuItem[] = [
     price: 250,
     category: "Beverages",
     isVeg: true,
+    image: "/images/fresh lime soda.jpg",
   },
   {
     id: "v2",
@@ -170,6 +171,7 @@ export const menuItems: MenuItem[] = [
     category: "Beverages",
     isVeg: true,
     isPopular: true,
+    image: "/images/iced tea.jpg",
   },
 ];
 

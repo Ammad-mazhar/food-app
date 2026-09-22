@@ -51,6 +51,24 @@ export interface Order {
   paymentMethod: "cash" | "card" | "wallet";
 }
 
+/**
+ * A locally-stored demo account. This app has no backend, so accounts live in
+ * localStorage on the visitor's own device and never leave it. The password is
+ * kept only as a SHA-256 digest (see `hashPassword` in lib/auth) so a plaintext
+ * password is never written to storage — but this is still demo-grade auth, not
+ * a real authentication system. Swap it for a server before handling real
+ * customer accounts.
+ */
+export interface Account {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  address?: string;
+  passwordHash: string;
+  createdAt: string;
+}
+
 export type ReservationStatus = "requested" | "confirmed" | "cancelled" | "completed";
 
 export interface Reservation {

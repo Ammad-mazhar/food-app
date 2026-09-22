@@ -10,6 +10,7 @@ import {
   dishCarouselSlides,
   roomCarouselSlides,
   heritage,
+  locations,
 } from "@/lib/restaurant";
 import MenuItemCard from "@/components/MenuItemCard";
 import StatCounter from "@/components/StatCounter";
@@ -63,23 +64,6 @@ const whyChooseUs = [
     icon: TrophyIcon,
     title: "Top-Rated in Rawalpindi",
     text: `${restaurantInfo.ranking}, per TripAdvisor.`,
-  },
-];
-
-const locations = [
-  {
-    label: "Saddar, Rawalpindi",
-    address: restaurantInfo.address,
-    hours: restaurantInfo.hours,
-    phone: restaurantInfo.phone,
-    query: restaurantInfo.mapsQuery,
-  },
-  {
-    label: "E-7, Islamabad",
-    address: "Shaheen Market, Sector E-7, Islamabad, Pakistan",
-    hours: restaurantInfo.hours,
-    phone: undefined,
-    query: "Texas Steak House, Shaheen Market, E-7, Islamabad",
   },
 ];
 

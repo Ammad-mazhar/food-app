@@ -5,9 +5,18 @@ import { formatPrice } from "@/lib/utils";
 import { useCart } from "@/context/CartContext";
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import DishArt from "@/components/DishArt";
+import { FlameIcon } from "@/components/icons";
 
-export default function MenuItemCard({ item }: { item: MenuItem }) {
+export default function MenuItemCard({
+  item,
+  priority = false,
+}: {
+  item: MenuItem;
+  /** Set on the cards in the first row so the LCP image isn't lazy-loaded. */
+  priority?: boolean;
+}) {
   const { addItem } = useCart();
   const [added, setAdded] = useState(false);
 
@@ -19,12 +28,17 @@ export default function MenuItemCard({ item }: { item: MenuItem }) {
 
   return (
     <div className="animate-card-enter group flex flex-col overflow-hidden rounded-2xl border border-border bg-surface transition hover:-translate-y-0.5 hover:border-border-strong hover:shadow-[0_12px_36px_-14px_rgba(201,162,75,0.3)]">
-      <div className="relative aspect-[16/10] w-full overflow-hidden bg-bg-elevated">
+      <Link
+        href={`/menu/${item.id}`}
+        className="relative aspect-[16/10] w-full overflow-hidden bg-bg-elevated"
+        aria-label={`View ${item.name}`}
+      >
         {item.image ? (
           <Image
             src={item.image}
             alt={item.name}
             fill
+            priority={priority}
             sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
             className="object-cover transition duration-500 group-hover:scale-105"
           />
@@ -35,23 +49,35 @@ export default function MenuItemCard({ item }: { item: MenuItem }) {
           />
         )}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent" />
-        {item.isPopular && (
-          <span className="absolute left-3 top-3 rounded-full bg-gold px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-bg shadow">
-            Signature
-          </span>
-        )}
+
+        <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
+          {item.isPopular && (
+            <span className="rounded-full bg-gold px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-bg shadow">
+              Signature
+            </span>
+          )}
+          {item.isSpicy && (
+            <span className="flex items-center gap-1 rounded-full bg-ember px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-cream shadow">
+              <FlameIcon className="h-2.5 w-2.5" />
+              Spicy
+            </span>
+          )}
+        </div>
+
         <span
           className={`absolute right-3 top-3 h-2.5 w-2.5 rounded-full ring-2 ring-bg ${
             item.isVeg ? "bg-green-500" : "bg-ember"
           }`}
           title={item.isVeg ? "Vegetarian" : "Non-vegetarian"}
         />
-      </div>
+      </Link>
 
       <div className="flex flex-1 flex-col p-4">
-        <h3 className="font-display text-lg font-semibold text-cream">
-          {item.name}
-        </h3>
+        <Link href={`/menu/${item.id}`} className="w-fit">
+          <h3 className="font-display text-lg font-semibold text-cream transition hover:text-gold-soft">
+            {item.name}
+          </h3>
+        </Link>
         <p className="mt-1 flex-1 text-sm text-muted">{item.description}</p>
 
         <div className="mt-4 flex items-center justify-between">

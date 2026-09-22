@@ -16,6 +16,8 @@ interface CartContextValue {
   addItem: (item: MenuItem, quantity?: number) => void;
   removeItem: (itemId: string) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
+  /** Kitchen note for one line, e.g. "no jalapeños". Empty string clears it. */
+  updateNotes: (itemId: string, notes: string) => void;
   clearCart: () => void;
   itemCount: number;
   subtotal: number;
@@ -29,8 +31,14 @@ const CartContext = createContext<CartContextValue | undefined>(undefined);
 const STORAGE_KEY = "food-app:cart";
 const CART_EVENT = "food-app:cart-changed";
 
+// useSyncExternalStore compares snapshots with Object.is and re-renders until
+// two consecutive reads match, so both snapshot getters must return a stable
+// reference. Returning a fresh `[]` from getServerSnapshot makes every read
+// look like a change, which React reports as a potential infinite loop.
+const EMPTY_LINES: CartLine[] = [];
+
 let cachedRaw: string | null = null;
-let cachedLines: CartLine[] = [];
+let cachedLines: CartLine[] = EMPTY_LINES;
 
 function readCart(): CartLine[] {
   if (typeof window === "undefined") return [];
@@ -38,16 +46,16 @@ function readCart(): CartLine[] {
   if (raw !== cachedRaw) {
     cachedRaw = raw;
     try {
-      cachedLines = raw ? (JSON.parse(raw) as CartLine[]) : [];
+      cachedLines = raw ? (JSON.parse(raw) as CartLine[]) : EMPTY_LINES;
     } catch {
-      cachedLines = [];
+      cachedLines = EMPTY_LINES;
     }
   }
   return cachedLines;
 }
 
 function getServerSnapshot(): CartLine[] {
-  return [];
+  return EMPTY_LINES;
 }
 
 function subscribe(callback: () => void) {
@@ -95,7 +103,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
     writeCart(next);
   }, []);
 
-  const clearCart = useCallback(() => writeCart([]), []);
+  const updateNotes = useCallback((itemId: string, notes: string) => {
+    const trimmed = notes.trim();
+    writeCart(
+      readCart().map((line) =>
+        line.item.id === itemId
+          ? { ...line, notes: trimmed || undefined }
+          : line
+      )
+    );
+  }, []);
+
+  const clearCart = useCallback(() => writeCart(EMPTY_LINES), []);
 
   const itemCount = useMemo(
     () => lines.reduce((sum, line) => sum + line.quantity, 0),
@@ -116,6 +135,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     addItem,
     removeItem,
     updateQuantity,
+    updateNotes,
     clearCart,
     itemCount,
     subtotal,

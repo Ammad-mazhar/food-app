@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Order } from "@/lib/types";
 import { ordersStore } from "@/lib/storage";
 import { formatPrice } from "@/lib/utils";
+import OrderActions from "@/components/OrderActions";
 
 const statusLabels: Record<Order["status"], string> = {
   placed: "Order Placed",
@@ -49,27 +50,41 @@ export default function OrdersPage() {
       </h1>
       <div className="flex flex-col gap-4">
         {orders.map((order) => (
-          <Link
+          <div
             key={order.id}
-            href={`/orders/${order.id}`}
-            className="flex flex-col gap-2 rounded-xl border border-border bg-surface p-5 transition hover:border-border-strong sm:flex-row sm:items-center sm:justify-between"
+            className="rounded-xl border border-border bg-surface p-5 transition hover:border-border-strong"
           >
-            <div>
-              <p className="font-semibold text-cream">{order.id}</p>
-              <p className="text-sm text-muted">
-                {new Date(order.placedAt).toLocaleString()} ·{" "}
-                {order.lines.length} item(s) · {order.type}
-              </p>
+            <Link
+              href={`/orders/${order.id}`}
+              className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div>
+                <p className="font-semibold text-cream">{order.id}</p>
+                <p className="text-sm text-muted">
+                  {new Date(order.placedAt).toLocaleString()} ·{" "}
+                  {order.lines.length} item(s) · {order.type}
+                </p>
+              </div>
+              <div className="flex items-center gap-4">
+                <span
+                  className={`rounded-full border bg-bg-elevated px-3 py-1 text-xs font-semibold ${
+                    order.status === "cancelled"
+                      ? "border-ember/40 text-ember-soft"
+                      : "border-gold/30 text-gold-soft"
+                  }`}
+                >
+                  {statusLabels[order.status]}
+                </span>
+                <span className="font-display font-semibold text-gold-soft">
+                  {formatPrice(order.total)}
+                </span>
+              </div>
+            </Link>
+
+            <div className="mt-4 border-t border-border pt-4">
+              <OrderActions order={order} />
             </div>
-            <div className="flex items-center gap-4">
-              <span className="rounded-full border border-gold/30 bg-bg-elevated px-3 py-1 text-xs font-semibold text-gold-soft">
-                {statusLabels[order.status]}
-              </span>
-              <span className="font-display font-semibold text-gold-soft">
-                {formatPrice(order.total)}
-              </span>
-            </div>
-          </Link>
+          </div>
         ))}
       </div>
     </div>

@@ -56,6 +56,13 @@ function getReducedMotionOnServer() {
   return false;
 }
 
+/** True when slide `i` is the active slide or sits either side of it, wrapping
+ *  around the ends. Used to decide which slide images are worth mounting. */
+function isNeighbour(i: number, index: number, count: number) {
+  const gap = Math.abs(i - index);
+  return Math.min(gap, count - gap) <= 1;
+}
+
 export default function DishCarousel({
   slides,
   interval = 5000,
@@ -144,16 +151,24 @@ export default function DishCarousel({
           }`}
           aria-hidden={i !== index}
         >
-          <Image
-            src={slide.src}
-            alt={slide.alt}
-            fill
-            priority={i === 0}
-            sizes="(min-width: 1024px) 1024px, 100vw"
-            className={`object-cover transition-transform duration-[6000ms] ease-out ${
-              i === index ? "scale-105" : "scale-100"
-            }`}
-          />
+          {/* Every slide fills the container, so a stacked <Image> counts as
+              in-viewport and lazy loading won't hold it back — rendering all
+              of them would fetch the whole carousel on first paint. Only the
+              current slide and its two neighbours are mounted; one step of
+              lookahead is enough for the next image to be decoded before it
+              fades in. */}
+          {isNeighbour(i, index, count) && (
+            <Image
+              src={slide.src}
+              alt={slide.alt}
+              fill
+              priority={i === 0}
+              sizes="(min-width: 1024px) 1024px, 100vw"
+              className={`object-cover transition-transform duration-[6000ms] ease-out ${
+                i === index ? "scale-105" : "scale-100"
+              }`}
+            />
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-black/25" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-transparent to-transparent" />
         </div>

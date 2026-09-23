@@ -1,23 +1,30 @@
 @import "tailwindcss";
 
 /*
- * "Saloon daylight" — an aged-paper ground, the colour of a Western wanted
- * poster, rather than the near-black the site started on.
+ * Two themes, one set of token names.
  *
- * Two families of colour live here, and mixing them up is the easy mistake:
+ *   SALOON DAYLIGHT (default)  aged-paper ground, ink on paper.
+ *   NIGHT (data-theme="dark")  the original near-black steakhouse ground.
  *
- *   ON PAPER   (--color-bg / surface / ink / muted / faint)
- *     The default. Dark ink on light paper. Used by every ordinary section.
+ * Every component styles itself from the semantic names below and never from a
+ * raw colour, so switching themes is only a matter of which block wins. The
+ * one rule to keep straight:
  *
- *   ON DARK    (--color-cream / --color-on-dark-*)
- *     For the handful of places that sit on top of a video or a photo behind
- *     a dark scrim — the hero, the CTA banner, the carousels. Those stay
- *     light-on-dark whatever the page around them does, so they keep their
- *     own tokens instead of reusing the paper ones.
+ *   PAGE TOKENS  (--color-bg / surface / field / ink / muted / faint / border)
+ *     Flip between the two themes. `ink` is "the readable text colour", which
+ *     means dark brown on paper and cream at night — not "a dark colour".
+ *
+ *   ON-DARK TOKENS  (--color-cream / --color-on-dark-*)
+ *     Never flip. They're for content sitting on a video or photo behind a
+ *     dark scrim — the hero, the CTA banner, the carousels — which is
+ *     light-on-dark in both themes.
  *
  * Accents are oxblood (actions) and saddle (highlights), with denim — taken
  * from the staff's checkered shirts — as the one cool note to stop the whole
  * page going monochrome-warm.
+ *
+ * The theme is set on <html data-theme> by a blocking script in the root
+ * layout, so the correct palette is in place before first paint.
  */
 :root {
   color-scheme: light;
@@ -62,6 +69,39 @@
      stack stays as the fallback so headings still read as serif if it fails. */
   --font-display: var(--font-rokkitt), Georgia, "Iowan Old Style",
     "Times New Roman", serif;
+}
+
+/*
+ * Night. The steakhouse's original dark/gold ground, mapped onto the same
+ * token names. Note `--color-ink` becoming cream and the gold pair inverting:
+ * on paper the emphatic gold is the darker one, at night it's the lighter.
+ */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-bg: #0b0908;
+  --color-bg-elevated: #15100d;
+  --color-surface: #1e1712;
+  --color-surface-hover: #271e17;
+  --color-field: #241c16;
+  --color-border: rgba(232, 205, 138, 0.14);
+  --color-border-strong: rgba(232, 205, 138, 0.3);
+
+  --color-ink: #f3ead9;
+  --color-muted: rgba(243, 234, 217, 0.68);
+  /* 0.5 left placeholder text at 4.50:1 inside a field — right on the line.
+     0.54 clears it on every dark surface. */
+  --color-faint: rgba(243, 234, 217, 0.54);
+
+  --color-ember: #b3432b;
+  --color-ember-soft: #d9613f;
+
+  --color-gold: #c9a24b;
+  --color-gold-soft: #e8cd8a;
+
+  --color-denim: #7d93a8;
+  --color-leather: #8a5535;
+  --color-rope: #c8a97e;
 }
 
 @theme inline {
@@ -111,6 +151,12 @@ body {
   }
 }
 
+/* The grain is dark speckle meant for paper; on the night ground it would do
+   nothing but add a background image to download. */
+:root[data-theme="dark"] body {
+  background-image: none;
+}
+
 /* Vertical companion to .rule-rope, for framing a wide section's gutters. */
 .rule-rope-v {
   width: 5px;
@@ -118,7 +164,7 @@ body {
   background-image: repeating-linear-gradient(
     200deg,
     var(--color-rope) 0 4px,
-    rgba(169, 118, 63, 0.22) 4px 9px
+    transparent 4px 9px
   );
   opacity: 0.45;
 }
@@ -157,7 +203,7 @@ body {
   background-image: repeating-linear-gradient(
     115deg,
     var(--color-rope) 0 4px,
-    rgba(169, 118, 63, 0.24) 4px 9px
+    transparent 4px 9px
   );
   opacity: 0.75;
 }

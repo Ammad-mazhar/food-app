@@ -7,6 +7,7 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { restaurantInfo } from "@/lib/restaurant";
 import { FlameIcon } from "@/components/icons";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const links = [
   { href: "/menu", label: "Menu" },
@@ -105,6 +106,7 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-3">
+          <ThemeToggle solid={solid} />
           <Link
             href="/account"
             aria-current={isActive("/account") ? "page" : undefined}
@@ -180,6 +182,9 @@ export default function Navbar() {
           >
             {account ? `${account.name.split(" ")[0]}'s Account` : "Account"}
           </Link>
+          <div className="mt-1 border-t border-border pt-1">
+            <ThemeToggle variant="menu" />
+          </div>
         </div>
       )}
     </header>

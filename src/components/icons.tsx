@@ -281,6 +281,39 @@ export function ThermometerIcon({ className = "h-5 w-5" }: IconProps) {
   );
 }
 
+export function SunIcon({ className = "h-5 w-5" }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2.5v2.2M12 19.3v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6" />
+    </svg>
+  );
+}
+
+export function MoonIcon({ className = "h-5 w-5" }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M20 14.2A8.2 8.2 0 019.8 4a8.4 8.4 0 102.6 16.4 8.4 8.4 0 007.6-6.2z" />
+    </svg>
+  );
+}
+
 /** Coiled lasso — stands for the rope and tack dressing the dining room. */
 export function LassoIcon({ className = "h-5 w-5" }: IconProps) {
   return (

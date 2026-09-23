@@ -24,6 +24,7 @@ import Footer from "@/components/Footer";
 import RevealObserver from "@/components/RevealObserver";
 import FloatingHub from "@/components/FloatingHub";
 import { restaurantInfo, siteUrl } from "@/lib/restaurant";
+import { THEME_INIT_SCRIPT } from "@/lib/theme";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -67,7 +68,17 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`h-full antialiased ${displayFont.variable}`}>
+    // suppressHydrationWarning: the inline script below sets data-theme on
+    // <html> before React hydrates, so the server markup and the live DOM
+    // legitimately differ on that one attribute.
+    <html
+      lang="en"
+      className={`h-full antialiased ${displayFont.variable}`}
+      suppressHydrationWarning
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="min-h-full flex flex-col font-sans">
         <AuthProvider>
           <CartProvider>

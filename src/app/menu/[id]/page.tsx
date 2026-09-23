@@ -49,7 +49,7 @@ export default async function DishPage({ params }: PageProps<"/menu/[id]">) {
           Menu
         </Link>
         <span className="mx-2 text-faint">/</span>
-        <span className="text-cream">{item.name}</span>
+        <span className="text-ink">{item.name}</span>
       </nav>
 
       <div className="grid gap-10 md:grid-cols-2 md:items-start">
@@ -70,7 +70,7 @@ export default async function DishPage({ params }: PageProps<"/menu/[id]">) {
 
         <div>
           <div className="mb-3 flex flex-wrap items-center gap-2">
-            <span className="rounded-full border border-border-strong px-3 py-1 text-xs font-semibold text-cream">
+            <span className="rounded-full border border-border-strong px-3 py-1 text-xs font-semibold text-ink">
               {item.category}
             </span>
             {item.isPopular && (
@@ -96,7 +96,7 @@ export default async function DishPage({ params }: PageProps<"/menu/[id]">) {
             </span>
           </div>
 
-          <h1 className="font-display text-3xl font-bold text-cream sm:text-4xl">
+          <h1 className="font-display text-3xl font-bold text-ink sm:text-4xl">
             {item.name}
           </h1>
           <p className="mt-3 text-muted">{item.description}</p>
@@ -115,14 +115,14 @@ export default async function DishPage({ params }: PageProps<"/menu/[id]">) {
             <div className="flex items-start gap-3">
               <ClockIcon className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
               <div>
-                <dt className="font-medium text-cream">Available</dt>
+                <dt className="font-medium text-ink">Available</dt>
                 <dd className="text-muted">{restaurantInfo.hours}</dd>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <PinIcon className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
               <div>
-                <dt className="font-medium text-cream">
+                <dt className="font-medium text-ink">
                   Dine-in, pickup or delivery
                 </dt>
                 <dd className="text-muted">
@@ -136,7 +136,7 @@ export default async function DishPage({ params }: PageProps<"/menu/[id]">) {
 
       {related.length > 0 && (
         <section className="mt-16">
-          <h2 className="mb-6 font-display text-2xl font-bold text-cream">
+          <h2 className="mb-6 font-display text-2xl font-bold text-ink">
             More from {item.category}
           </h2>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">

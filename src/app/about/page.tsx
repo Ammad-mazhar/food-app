@@ -13,6 +13,7 @@ import {
   aboutFaqs,
   restaurantPhotos,
   tourVideo,
+  ambiance,
 } from "@/lib/restaurant";
 import VideoShowcase from "@/components/VideoShowcase";
 import {
@@ -30,6 +31,9 @@ import {
   DropletIcon,
   ThermometerIcon,
   SparkleIcon,
+  LassoIcon,
+  HatIcon,
+  MusicIcon,
 } from "@/components/icons";
 
 export const metadata: Metadata = {
@@ -70,6 +74,13 @@ const timeline = [
   },
 ];
 
+/** Keyed to the `ambiance` entries in src/lib/restaurant.ts. */
+const ambianceIcons = {
+  set: LassoIcon,
+  cast: HatIcon,
+  score: MusicIcon,
+} as const;
+
 /* Icons are paired to the hygiene pledges by position — see `hygienePledges`
    in src/lib/restaurant.ts. */
 const hygieneIcons = [
@@ -104,7 +115,7 @@ export default function AboutPage() {
         >
           <source src={aboutHeroVideo.src} type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-linear-to-t from-bg via-black/60 to-black/40" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/55 to-black/45" />
         <div className="animate-hero relative z-10 mx-auto w-full max-w-6xl px-4 pb-14 pt-20 sm:px-6">
           <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-gold/30 bg-black/30 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-gold-soft backdrop-blur-sm">
             <FlameIcon className="animate-flame h-3.5 w-3.5" />
@@ -141,7 +152,7 @@ export default function AboutPage() {
           <span className="text-xs font-semibold uppercase tracking-widest text-gold">
             Who We Are
           </span>
-          <h2 className="mt-1 font-display text-2xl font-bold text-cream sm:text-3xl">
+          <h2 className="mt-1 font-display text-2xl font-bold text-ink sm:text-3xl">
             A steakhouse built around the grill, not the menu
           </h2>
           <p className="mt-4 text-muted">
@@ -175,7 +186,7 @@ export default function AboutPage() {
             </Link>
             <Link
               href="/book-table"
-              className="rounded-lg border border-border-strong px-6 py-3 font-semibold text-cream transition hover:scale-105 hover:bg-surface active:scale-95"
+              className="rounded-lg border border-border-strong px-6 py-3 font-semibold text-ink transition hover:scale-105 hover:bg-surface active:scale-95"
             >
               Book a Table
             </Link>
@@ -192,6 +203,43 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* The room: set, cast, score */}
+      <section className="reveal border-y border-border bg-bg-elevated py-16">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6">
+          <div className="max-w-2xl">
+            <h2 className="font-display text-3xl font-bold leading-tight text-ink sm:text-4xl">
+              Dinner on a Western set
+            </h2>
+            <p className="mt-4 text-muted">
+              The steak is the reason to come. The room is the reason people
+              bring their cousins. We dressed the Saddar branch like a
+              Hollywood Western — and then committed to it properly, down to
+              what the waiters are wearing and what&apos;s playing while you
+              eat.
+            </p>
+          </div>
+
+          <div className="rule-rope my-10" />
+
+          <div className="grid gap-10 sm:grid-cols-3">
+            {ambiance.map((part) => {
+              const Icon = ambianceIcons[part.key];
+              return (
+                <div key={part.key}>
+                  <Icon className="h-7 w-7 text-rope" />
+                  <h3 className="mt-4 font-display text-xl font-semibold text-ink">
+                    {part.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted">
+                    {part.text}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
       {/* Milestones */}
       <section className="reveal border-y border-border bg-bg-elevated py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -199,7 +247,7 @@ export default function AboutPage() {
             <span className="text-xs font-semibold uppercase tracking-widest text-gold">
               Since {heritage.foundedYear}
             </span>
-            <h2 className="mt-1 font-display text-2xl font-bold text-cream sm:text-3xl">
+            <h2 className="mt-1 font-display text-2xl font-bold text-ink sm:text-3xl">
               How We Got Here
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-sm text-muted">
@@ -234,7 +282,7 @@ export default function AboutPage() {
                   <span className="font-display text-5xl font-bold text-gold/20">
                     {m.year}
                   </span>
-                  <h3 className="mt-1 font-display text-xl font-semibold text-cream sm:text-2xl">
+                  <h3 className="mt-1 font-display text-xl font-semibold text-ink sm:text-2xl">
                     {m.title}
                   </h3>
                   <p className="mt-3 text-muted">{m.text}</p>
@@ -251,7 +299,7 @@ export default function AboutPage() {
           <span className="text-xs font-semibold uppercase tracking-widest text-gold">
             Where We&apos;re Headed
           </span>
-          <h2 className="mt-1 font-display text-2xl font-bold text-cream sm:text-3xl">
+          <h2 className="mt-1 font-display text-2xl font-bold text-ink sm:text-3xl">
             Mission &amp; Vision
           </h2>
         </div>
@@ -272,15 +320,16 @@ export default function AboutPage() {
                   sizes="(min-width: 768px) 45vw, 100vw"
                   className="object-cover transition duration-700 group-hover:scale-105"
                 />
-                {/* Fades the photo into the card so the band reads as part of
-                    the card rather than a pasted-on thumbnail. */}
-                <div className="absolute inset-0 bg-linear-to-t from-surface via-surface/30 to-transparent" />
+                {/* Just enough shade at the foot of the photo for the icon
+                    badge to sit on. A fade into the card's own colour turned
+                    into a pale haze once the theme went light. */}
+                <div className="absolute inset-x-0 bottom-0 h-20 bg-linear-to-t from-black/45 to-transparent" />
                 <div className="absolute bottom-4 left-5 flex h-12 w-12 items-center justify-center rounded-full border border-gold/40 bg-black/50 text-gold backdrop-blur-sm">
                   <block.icon className="h-6 w-6" />
                 </div>
               </div>
               <div className="flex flex-1 flex-col p-7 pt-5 sm:p-8 sm:pt-5">
-                <h3 className="font-display text-xl font-semibold text-cream">
+                <h3 className="font-display text-xl font-semibold text-ink">
                   {block.title}
                 </h3>
                 <p className="mt-3 text-muted">{block.text}</p>
@@ -288,7 +337,7 @@ export default function AboutPage() {
                   {block.points.map((point) => (
                     <li key={point} className="flex items-start gap-3 text-sm">
                       <CheckIcon className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
-                      <span className="text-cream/90">{point}</span>
+                      <span className="text-ink/90">{point}</span>
                     </li>
                   ))}
                 </ul>
@@ -305,7 +354,7 @@ export default function AboutPage() {
             <span className="text-xs font-semibold uppercase tracking-widest text-gold">
               What We Stand For
             </span>
-            <h2 className="mt-1 font-display text-2xl font-bold text-cream sm:text-3xl">
+            <h2 className="mt-1 font-display text-2xl font-bold text-ink sm:text-3xl">
               The Standards Behind Every Plate
             </h2>
           </div>
@@ -318,7 +367,7 @@ export default function AboutPage() {
                 <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full border border-gold/40 text-gold">
                   <v.icon className="h-5 w-5" />
                 </div>
-                <h3 className="font-display font-semibold text-cream">
+                <h3 className="font-display font-semibold text-ink">
                   {v.title}
                 </h3>
                 <p className="mt-1.5 text-sm text-muted">{v.text}</p>
@@ -344,19 +393,20 @@ export default function AboutPage() {
             <span className="text-xs font-semibold uppercase tracking-widest text-gold">
               Hygiene &amp; Food Safety
             </span>
-            <h2 className="mt-1 font-display text-2xl font-bold text-cream sm:text-3xl">
-              A Kitchen You Can Watch
+            <h2 className="mt-1 font-display text-2xl font-bold text-ink sm:text-3xl">
+              The Part You Can&apos;t Taste
             </h2>
             <p className="mt-4 text-muted">
               A steakhouse lives or dies on trust. You can&apos;t taste whether
               a chiller was logged or a board was swapped between raw beef and
-              salad — so we run the kitchen as though you were standing in it,
-              and at our Saddar branch, you very nearly are.
+              salad, so you are taking our word for it — which is exactly why
+              we would rather set out what the word is.
             </p>
             <p className="mt-4 text-muted">
-              Nothing below is a marketing line we invented for this page.
-              They&apos;re the same rules printed on the wall of the prep room,
-              checked by the shift manager at open and at close.
+              A room full of rope, saddles and cased ammunition is a room full
+              of surfaces. The theme gets held to the same standard as the
+              kitchen: if it&apos;s on the wall, it&apos;s on the cleaning
+              rota.
             </p>
           </div>
         </div>
@@ -372,7 +422,7 @@ export default function AboutPage() {
                 <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full border border-gold/40 text-gold">
                   <Icon className="h-5 w-5" />
                 </div>
-                <h3 className="font-display font-semibold text-cream">
+                <h3 className="font-display font-semibold text-ink">
                   {pledge.title}
                 </h3>
                 <p className="mt-1.5 text-sm text-muted">{pledge.text}</p>
@@ -401,7 +451,7 @@ export default function AboutPage() {
               <span className="text-xs font-semibold uppercase tracking-widest text-gold">
                 Where It Comes From
               </span>
-              <h2 className="mt-1 font-display text-2xl font-bold text-cream sm:text-3xl">
+              <h2 className="mt-1 font-display text-2xl font-bold text-ink sm:text-3xl">
                 Sourced Daily, Prepped In-House
               </h2>
               <p className="mt-4 text-muted">
@@ -414,7 +464,7 @@ export default function AboutPage() {
                   <div key={item.title} className="flex items-start gap-3">
                     <LeafIcon className="mt-0.5 h-5 w-5 shrink-0 text-gold" />
                     <div>
-                      <h3 className="font-display font-semibold text-cream">
+                      <h3 className="font-display font-semibold text-ink">
                         {item.title}
                       </h3>
                       <p className="mt-0.5 text-sm text-muted">{item.text}</p>
@@ -433,7 +483,7 @@ export default function AboutPage() {
           <span className="text-xs font-semibold uppercase tracking-widest text-gold">
             How We Cook
           </span>
-          <h2 className="mt-1 font-display text-2xl font-bold text-cream sm:text-3xl">
+          <h2 className="mt-1 font-display text-2xl font-bold text-ink sm:text-3xl">
             From Fire to Table
           </h2>
         </div>
@@ -443,7 +493,7 @@ export default function AboutPage() {
               <span className="font-display text-4xl font-bold text-gold/25">
                 {String(i + 1).padStart(2, "0")}
               </span>
-              <h3 className="mt-2 font-display text-lg font-semibold text-cream">
+              <h3 className="mt-2 font-display text-lg font-semibold text-ink">
                 {t.step}
               </h3>
               <p className="mt-1.5 text-sm text-muted">{t.text}</p>
@@ -459,7 +509,7 @@ export default function AboutPage() {
             <span className="text-xs font-semibold uppercase tracking-widest text-gold">
               The Full Tour
             </span>
-            <h2 className="mt-1 font-display text-2xl font-bold text-cream sm:text-3xl">
+            <h2 className="mt-1 font-display text-2xl font-bold text-ink sm:text-3xl">
               See It Before You Sit In It
             </h2>
           </div>
@@ -479,7 +529,7 @@ export default function AboutPage() {
             <span className="text-xs font-semibold uppercase tracking-widest text-gold">
               Around the Restaurant
             </span>
-            <h2 className="mt-1 font-display text-2xl font-bold text-cream sm:text-3xl">
+            <h2 className="mt-1 font-display text-2xl font-bold text-ink sm:text-3xl">
               The Room, The Kitchen, The Table
             </h2>
           </div>
@@ -518,7 +568,7 @@ export default function AboutPage() {
             <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full border border-gold/40 text-gold">
               <TrophyIcon className="h-5 w-5" />
             </div>
-            <h3 className="font-display text-lg font-semibold text-cream">
+            <h3 className="font-display text-lg font-semibold text-ink">
               {restaurantInfo.ranking}
             </h3>
             <p className="mt-1.5 text-sm text-muted">
@@ -529,7 +579,7 @@ export default function AboutPage() {
             <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full border border-gold/40 text-gold">
               <SparkleIcon className="h-5 w-5" />
             </div>
-            <h3 className="font-display text-lg font-semibold text-cream">
+            <h3 className="font-display text-lg font-semibold text-ink">
               {restaurantInfo.rating.toFixed(1)} stars, {restaurantInfo.reviewCount}+ reviews
             </h3>
             <p className="mt-1.5 text-sm text-muted">
@@ -540,7 +590,7 @@ export default function AboutPage() {
             <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full border border-gold/40 text-gold">
               <UsersIcon className="h-5 w-5" />
             </div>
-            <h3 className="font-display text-lg font-semibold text-cream">
+            <h3 className="font-display text-lg font-semibold text-ink">
               Two kitchens, one standard
             </h3>
             <p className="mt-1.5 text-sm text-muted">
@@ -557,7 +607,7 @@ export default function AboutPage() {
             <span className="text-xs font-semibold uppercase tracking-widest text-gold">
               Before You Visit
             </span>
-            <h2 className="mt-1 font-display text-2xl font-bold text-cream sm:text-3xl">
+            <h2 className="mt-1 font-display text-2xl font-bold text-ink sm:text-3xl">
               Questions We Get Asked
             </h2>
           </div>
@@ -567,7 +617,7 @@ export default function AboutPage() {
                 key={faq.q}
                 className="group rounded-2xl border border-border bg-surface p-5 transition open:border-border-strong"
               >
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-display font-semibold text-cream [&::-webkit-details-marker]:hidden">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-display font-semibold text-ink [&::-webkit-details-marker]:hidden">
                   {faq.q}
                   <span className="shrink-0 text-gold transition group-open:rotate-45">
                     <svg
@@ -596,21 +646,21 @@ export default function AboutPage() {
             <span className="text-xs font-semibold uppercase tracking-widest text-gold">
               Come See Us
             </span>
-            <h2 className="mt-1 font-display text-2xl font-bold text-cream sm:text-3xl">
+            <h2 className="mt-1 font-display text-2xl font-bold text-ink sm:text-3xl">
               Saddar, Rawalpindi
             </h2>
             <div className="mt-4 flex flex-col gap-2.5 text-sm">
               <div className="flex items-start gap-3">
                 <PinIcon className="mt-0.5 h-5 w-5 shrink-0 text-gold" />
-                <p className="text-cream">{restaurantInfo.address}</p>
+                <p className="text-ink">{restaurantInfo.address}</p>
               </div>
               <div className="flex items-center gap-3">
                 <ClockIcon className="h-5 w-5 shrink-0 text-gold" />
-                <p className="text-cream">{restaurantInfo.hours}</p>
+                <p className="text-ink">{restaurantInfo.hours}</p>
               </div>
               <div className="flex items-center gap-3">
                 <PhoneIcon className="h-5 w-5 shrink-0 text-gold" />
-                <a href={`tel:${restaurantInfo.phone}`} className="text-cream hover:text-gold-soft">
+                <a href={`tel:${restaurantInfo.phone}`} className="text-ink hover:text-gold-soft">
                   {restaurantInfo.phone}
                 </a>
               </div>
@@ -625,7 +675,7 @@ export default function AboutPage() {
             </Link>
             <Link
               href="/menu"
-              className="rounded-lg border border-border-strong px-6 py-3 font-semibold text-cream transition hover:scale-105 hover:bg-bg-elevated active:scale-95"
+              className="rounded-lg border border-border-strong px-6 py-3 font-semibold text-ink transition hover:scale-105 hover:bg-bg-elevated active:scale-95"
             >
               Order Online
             </Link>

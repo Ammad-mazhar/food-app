@@ -53,7 +53,7 @@ export default function OrderActions({
         </button>
         <button
           onClick={() => setConfirming(false)}
-          className={`${base} border border-border-strong text-cream hover:bg-surface-hover`}
+          className={`${base} border border-border-strong text-ink hover:bg-surface-hover`}
         >
           Keep it
         </button>
@@ -69,7 +69,7 @@ export default function OrderActions({
     >
       <button
         onClick={handleReorder}
-        className={`${base} border border-border-strong text-cream hover:bg-surface-hover`}
+        className={`${base} border border-border-strong text-ink hover:bg-surface-hover`}
       >
         Reorder
       </button>

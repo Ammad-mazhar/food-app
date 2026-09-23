@@ -281,6 +281,62 @@ export function ThermometerIcon({ className = "h-5 w-5" }: IconProps) {
   );
 }
 
+/** Coiled lasso — stands for the rope and tack dressing the dining room. */
+export function LassoIcon({ className = "h-5 w-5" }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <ellipse cx="12" cy="8" rx="6.5" ry="3.6" />
+      <path d="M12 11.6v3.9c0 2.1 1.1 3.9 3.1 4.9" />
+      <path d="M12 15.5c-1.6.4-2.7 1.2-2.7 2.1 0 1.3 2 2.4 4.5 2.4" />
+    </svg>
+  );
+}
+
+/** Cowboy hat — the floor staff's costume. */
+export function HatIcon({ className = "h-5 w-5" }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M6.6 13.2V9.6C6.6 6.5 8.6 5 12 5s5.4 1.5 5.4 4.6v3.6" />
+      <path d="M17.4 11.5c2.7.4 4.4 1.2 4.4 2.1 0 1.4-4.4 2.6-9.8 2.6S2.2 15 2.2 13.6c0-.9 1.7-1.7 4.4-2.1" />
+    </svg>
+  );
+}
+
+/** Two beamed notes — the country soundtrack. */
+export function MusicIcon({ className = "h-5 w-5" }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M9 17V5.8l11-2.1v11.1" />
+      <circle cx="6.6" cy="17.4" r="2.6" />
+      <circle cx="17.6" cy="15.4" r="2.6" />
+    </svg>
+  );
+}
+
 export function FacebookIcon({ className = "h-5 w-5" }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" className={className}>

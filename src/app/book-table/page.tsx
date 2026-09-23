@@ -25,7 +25,7 @@ export default function BookTablePage() {
 
   const suitableTables = tables.filter((t) => t.seats >= partySize);
   const inputClass =
-    "w-full rounded-lg border border-border-strong bg-bg-elevated px-4 py-2 text-sm text-cream placeholder:text-faint focus:border-gold focus:outline-none";
+    "w-full rounded-lg border border-border-strong bg-field px-4 py-2 text-sm text-ink placeholder:text-faint focus:border-gold focus:outline-none";
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -57,7 +57,7 @@ export default function BookTablePage() {
       <span className="text-xs font-semibold uppercase tracking-widest text-gold">
         Reserve
       </span>
-      <h1 className="mt-1 font-display text-3xl font-bold text-cream">
+      <h1 className="mt-1 font-display text-3xl font-bold text-ink">
         Book a Table
       </h1>
       <p className="mb-8 mt-1 text-muted">
@@ -70,7 +70,7 @@ export default function BookTablePage() {
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="mb-1 block text-sm font-medium text-cream">
+            <label className="mb-1 block text-sm font-medium text-ink">
               Full name
             </label>
             <input
@@ -82,7 +82,7 @@ export default function BookTablePage() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-cream">
+            <label className="mb-1 block text-sm font-medium text-ink">
               Phone number
             </label>
             <input
@@ -97,7 +97,7 @@ export default function BookTablePage() {
 
         <div className="grid gap-4 sm:grid-cols-3">
           <div>
-            <label className="mb-1 block text-sm font-medium text-cream">
+            <label className="mb-1 block text-sm font-medium text-ink">
               Date
             </label>
             <input
@@ -109,7 +109,7 @@ export default function BookTablePage() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-cream">
+            <label className="mb-1 block text-sm font-medium text-ink">
               Time
             </label>
             <input
@@ -120,7 +120,7 @@ export default function BookTablePage() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-cream">
+            <label className="mb-1 block text-sm font-medium text-ink">
               Party size
             </label>
             <input
@@ -138,7 +138,7 @@ export default function BookTablePage() {
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-cream">
+          <label className="mb-2 block text-sm font-medium text-ink">
             Preferred table (optional)
           </label>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -158,7 +158,7 @@ export default function BookTablePage() {
                 className={`rounded-lg border px-3 py-2 text-left text-sm transition ${
                   tableId === table.id
                     ? "border-gold bg-gold text-bg"
-                    : "border-border-strong text-cream hover:bg-bg-elevated"
+                    : "border-border-strong text-ink hover:bg-bg-elevated"
                 }`}
               >
                 <div className="font-semibold">{table.label}</div>
@@ -175,7 +175,7 @@ export default function BookTablePage() {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-cream">
+          <label className="mb-1 block text-sm font-medium text-ink">
             Special requests (optional)
           </label>
           <textarea

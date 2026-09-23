@@ -73,7 +73,7 @@ export default function FloatingHub() {
           href="/book-table"
           tabIndex={open ? undefined : -1}
           aria-hidden={!open}
-          className="flex items-center gap-3 rounded-full border border-border-strong bg-surface/95 py-2.5 pl-5 pr-2.5 text-sm font-semibold text-cream shadow-xl shadow-black/40 backdrop-blur-md transition hover:scale-105 hover:bg-surface-hover active:scale-95"
+          className="flex items-center gap-3 rounded-full border border-border-strong bg-surface/95 py-2.5 pl-5 pr-2.5 text-sm font-semibold text-ink shadow-xl shadow-black/40 backdrop-blur-md transition hover:scale-105 hover:bg-surface-hover active:scale-95"
         >
           Book a Table
           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-ember text-cream">
@@ -85,7 +85,7 @@ export default function FloatingHub() {
           href={bookingPhone.href}
           tabIndex={open ? undefined : -1}
           aria-hidden={!open}
-          className="flex items-center gap-3 rounded-full border border-border-strong bg-surface/95 py-2.5 pl-5 pr-2.5 text-sm font-semibold text-cream shadow-xl shadow-black/40 backdrop-blur-md transition hover:scale-105 hover:bg-surface-hover active:scale-95"
+          className="flex items-center gap-3 rounded-full border border-border-strong bg-surface/95 py-2.5 pl-5 pr-2.5 text-sm font-semibold text-ink shadow-xl shadow-black/40 backdrop-blur-md transition hover:scale-105 hover:bg-surface-hover active:scale-95"
         >
           <span className="flex flex-col items-end leading-tight">
             <span className="text-[0.65rem] font-medium uppercase tracking-wider text-muted">

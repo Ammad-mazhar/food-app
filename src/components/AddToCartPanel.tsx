@@ -29,18 +29,18 @@ export default function AddToCartPanel({ item }: { item: MenuItem }) {
           <button
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
             disabled={quantity <= 1}
-            className="h-9 w-9 rounded-full text-lg leading-none text-cream transition hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-40"
+            className="h-9 w-9 rounded-full text-lg leading-none text-ink transition hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-40"
             aria-label="Decrease quantity"
           >
             −
           </button>
-          <span className="w-8 text-center font-medium text-cream" aria-live="polite">
+          <span className="w-8 text-center font-medium text-ink" aria-live="polite">
             {quantity}
           </span>
           <button
             onClick={() => setQuantity((q) => Math.min(20, q + 1))}
             disabled={quantity >= 20}
-            className="h-9 w-9 rounded-full text-lg leading-none text-cream transition hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-40"
+            className="h-9 w-9 rounded-full text-lg leading-none text-ink transition hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-40"
             aria-label="Increase quantity"
           >
             +

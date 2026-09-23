@@ -33,7 +33,7 @@ export default function CartPage() {
             <path d="M3 3h2l2.4 12.4a2 2 0 002 1.6h8.4a2 2 0 002-1.6L21 8H6" />
           </svg>
         </div>
-        <h1 className="font-display text-2xl font-bold text-cream">
+        <h1 className="font-display text-2xl font-bold text-ink">
           Your cart is empty
         </h1>
         <p className="mt-2 text-muted">
@@ -52,7 +52,7 @@ export default function CartPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-        <h1 className="font-display text-3xl font-bold text-cream">
+        <h1 className="font-display text-3xl font-bold text-ink">
           Your Cart
         </h1>
         {confirmingClear ? (
@@ -69,7 +69,7 @@ export default function CartPage() {
             </button>
             <button
               onClick={() => setConfirmingClear(false)}
-              className="rounded-lg border border-border-strong px-3.5 py-1.5 font-semibold text-cream transition hover:bg-surface"
+              className="rounded-lg border border-border-strong px-3.5 py-1.5 font-semibold text-ink transition hover:bg-surface"
             >
               Keep
             </button>
@@ -112,7 +112,7 @@ export default function CartPage() {
                 <div className="min-w-0 flex-1">
                   <Link
                     href={`/menu/${item.id}`}
-                    className="font-semibold text-cream hover:text-gold-soft"
+                    className="font-semibold text-ink hover:text-gold-soft"
                   >
                     {item.name}
                   </Link>
@@ -124,17 +124,17 @@ export default function CartPage() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => updateQuantity(item.id, quantity - 1)}
-                    className="h-8 w-8 rounded-full border border-border-strong text-lg leading-none text-cream transition hover:bg-surface-hover"
+                    className="h-8 w-8 rounded-full border border-border-strong text-lg leading-none text-ink transition hover:bg-surface-hover"
                     aria-label={`Decrease ${item.name} quantity`}
                   >
                     −
                   </button>
-                  <span className="w-6 text-center font-medium text-cream">
+                  <span className="w-6 text-center font-medium text-ink">
                     {quantity}
                   </span>
                   <button
                     onClick={() => updateQuantity(item.id, quantity + 1)}
-                    className="h-8 w-8 rounded-full border border-border-strong text-lg leading-none text-cream transition hover:bg-surface-hover"
+                    className="h-8 w-8 rounded-full border border-border-strong text-lg leading-none text-ink transition hover:bg-surface-hover"
                     aria-label={`Increase ${item.name} quantity`}
                   >
                     +
@@ -176,13 +176,13 @@ export default function CartPage() {
                         if (e.key === "Escape") setOpenNoteFor(null);
                       }}
                       placeholder="e.g. well done, no jalapeños"
-                      className="w-full rounded-lg border border-border-strong bg-bg-elevated px-3 py-1.5 text-sm text-cream placeholder:text-faint focus:border-gold focus:outline-none"
+                      className="w-full rounded-lg border border-border-strong bg-field px-3 py-1.5 text-sm text-ink placeholder:text-faint focus:border-gold focus:outline-none"
                     />
                   </div>
                 ) : notes ? (
                   <button
                     onClick={() => setOpenNoteFor(item.id)}
-                    className="text-left text-sm italic text-muted hover:text-cream"
+                    className="text-left text-sm italic text-muted hover:text-ink"
                   >
                     &ldquo;{notes}&rdquo;{" "}
                     <span className="not-italic text-gold-soft">Edit</span>
@@ -208,21 +208,21 @@ export default function CartPage() {
         </div>
 
         <div className="h-fit rounded-xl border border-border bg-surface p-6">
-          <h2 className="mb-4 font-display text-lg font-semibold text-cream">
+          <h2 className="mb-4 font-display text-lg font-semibold text-ink">
             Order Summary
           </h2>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-muted">Subtotal</span>
-              <span className="text-cream">{formatPrice(subtotal)}</span>
+              <span className="text-ink">{formatPrice(subtotal)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted">Delivery Fee</span>
-              <span className="text-cream">{formatPrice(deliveryFee)}</span>
+              <span className="text-ink">{formatPrice(deliveryFee)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted">Tax</span>
-              <span className="text-cream">{formatPrice(tax)}</span>
+              <span className="text-ink">{formatPrice(tax)}</span>
             </div>
             <div className="mt-2 flex justify-between border-t border-border pt-2 font-display text-base font-bold text-gold-soft">
               <span>Total</span>

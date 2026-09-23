@@ -36,7 +36,7 @@ export default function CheckoutPage() {
   if (lines.length === 0) {
     return (
       <div className="mx-auto max-w-6xl px-4 py-24 text-center sm:px-6">
-        <h1 className="font-display text-2xl font-bold text-cream">
+        <h1 className="font-display text-2xl font-bold text-ink">
           Nothing to check out
         </h1>
         <p className="mt-2 text-muted">Add some items to your cart first.</p>
@@ -87,18 +87,18 @@ export default function CheckoutPage() {
   const finalTotal = orderType === "delivery" ? total : subtotal + tax;
 
   const inputClass =
-    "rounded-lg border border-border-strong bg-surface px-4 py-2 text-sm text-cream placeholder:text-faint focus:border-gold focus:outline-none";
+    "rounded-lg border border-border-strong bg-field px-4 py-2 text-sm text-ink placeholder:text-faint focus:border-gold focus:outline-none";
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
-      <h1 className="mb-8 font-display text-3xl font-bold text-cream">
+      <h1 className="mb-8 font-display text-3xl font-bold text-ink">
         Checkout
       </h1>
 
       <form onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-[1fr_320px]">
         <div className="flex flex-col gap-6">
           <div>
-            <h2 className="mb-3 font-display text-lg font-semibold text-cream">
+            <h2 className="mb-3 font-display text-lg font-semibold text-ink">
               Order Type
             </h2>
             <div className="flex gap-3">
@@ -110,7 +110,7 @@ export default function CheckoutPage() {
                   className={`flex-1 rounded-lg border px-4 py-3 text-sm font-semibold capitalize transition ${
                     orderType === type
                       ? "border-gold bg-gold text-bg"
-                      : "border-border-strong text-cream hover:bg-surface"
+                      : "border-border-strong text-ink hover:bg-surface"
                   }`}
                 >
                   {type === "delivery" ? "Delivery" : "Pickup"}
@@ -120,7 +120,7 @@ export default function CheckoutPage() {
           </div>
 
           <div>
-            <h2 className="mb-3 font-display text-lg font-semibold text-cream">
+            <h2 className="mb-3 font-display text-lg font-semibold text-ink">
               Contact Details
             </h2>
             {account ? (
@@ -142,7 +142,7 @@ export default function CheckoutPage() {
               <div>
                 <label
                   htmlFor="checkout-name"
-                  className="mb-1 block text-sm font-medium text-cream"
+                  className="mb-1 block text-sm font-medium text-ink"
                 >
                   Full name
                 </label>
@@ -159,7 +159,7 @@ export default function CheckoutPage() {
               <div>
                 <label
                   htmlFor="checkout-phone"
-                  className="mb-1 block text-sm font-medium text-cream"
+                  className="mb-1 block text-sm font-medium text-ink"
                 >
                   Phone number
                 </label>
@@ -177,7 +177,7 @@ export default function CheckoutPage() {
                 <div>
                   <label
                     htmlFor="checkout-address"
-                    className="mb-1 block text-sm font-medium text-cream"
+                    className="mb-1 block text-sm font-medium text-ink"
                   >
                     Delivery address
                   </label>
@@ -196,7 +196,7 @@ export default function CheckoutPage() {
           </div>
 
           <div>
-            <h2 className="mb-3 font-display text-lg font-semibold text-cream">
+            <h2 className="mb-3 font-display text-lg font-semibold text-ink">
               Payment Method
             </h2>
             <div className="flex flex-col gap-2">
@@ -213,7 +213,7 @@ export default function CheckoutPage() {
               ).map((option) => (
                 <label
                   key={option.id}
-                  className="flex items-center gap-3 rounded-lg border border-border-strong bg-surface px-4 py-2.5 text-sm text-cream"
+                  className="flex items-center gap-3 rounded-lg border border-border-strong bg-surface px-4 py-2.5 text-sm text-ink"
                 >
                   <input
                     type="radio"
@@ -236,7 +236,7 @@ export default function CheckoutPage() {
         </div>
 
         <div className="h-fit rounded-xl border border-border bg-surface p-6">
-          <h2 className="mb-4 font-display text-lg font-semibold text-cream">
+          <h2 className="mb-4 font-display text-lg font-semibold text-ink">
             Order Summary
           </h2>
           <ul className="mb-4 space-y-1 text-sm text-muted">
@@ -246,7 +246,7 @@ export default function CheckoutPage() {
                   <span>
                     {quantity} × {item.name}
                   </span>
-                  <span className="text-cream">
+                  <span className="text-ink">
                     {formatPrice(item.price * quantity)}
                   </span>
                 </div>
@@ -261,17 +261,17 @@ export default function CheckoutPage() {
           <div className="space-y-2 border-t border-border pt-3 text-sm">
             <div className="flex justify-between">
               <span className="text-muted">Subtotal</span>
-              <span className="text-cream">{formatPrice(subtotal)}</span>
+              <span className="text-ink">{formatPrice(subtotal)}</span>
             </div>
             {orderType === "delivery" && (
               <div className="flex justify-between">
                 <span className="text-muted">Delivery Fee</span>
-                <span className="text-cream">{formatPrice(deliveryFee)}</span>
+                <span className="text-ink">{formatPrice(deliveryFee)}</span>
               </div>
             )}
             <div className="flex justify-between">
               <span className="text-muted">Tax</span>
-              <span className="text-cream">{formatPrice(tax)}</span>
+              <span className="text-ink">{formatPrice(tax)}</span>
             </div>
             <div className="flex justify-between border-t border-border pt-2 font-display text-base font-bold text-gold-soft">
               <span>Total</span>

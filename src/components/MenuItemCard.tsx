@@ -48,7 +48,6 @@ export default function MenuItemCard({
             className="h-full w-full transition duration-500 group-hover:scale-105"
           />
         )}
-        <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-surface via-transparent to-transparent" />
 
         <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
           {item.isPopular && (
@@ -74,7 +73,7 @@ export default function MenuItemCard({
 
       <div className="flex flex-1 flex-col p-4">
         <Link href={`/menu/${item.id}`} className="w-fit">
-          <h3 className="font-display text-lg font-semibold text-cream transition hover:text-gold-soft">
+          <h3 className="font-display text-lg font-semibold text-ink transition hover:text-ember">
             {item.name}
           </h3>
         </Link>

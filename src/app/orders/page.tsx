@@ -27,7 +27,7 @@ export default function OrdersPage() {
   if (orders.length === 0) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-24 text-center sm:px-6">
-        <h1 className="font-display text-2xl font-bold text-cream">
+        <h1 className="font-display text-2xl font-bold text-ink">
           No orders yet
         </h1>
         <p className="mt-2 text-muted">
@@ -45,7 +45,7 @@ export default function OrdersPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
-      <h1 className="mb-8 font-display text-3xl font-bold text-cream">
+      <h1 className="mb-8 font-display text-3xl font-bold text-ink">
         My Orders
       </h1>
       <div className="flex flex-col gap-4">
@@ -59,7 +59,7 @@ export default function OrdersPage() {
               className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
             >
               <div>
-                <p className="font-semibold text-cream">{order.id}</p>
+                <p className="font-semibold text-ink">{order.id}</p>
                 <p className="text-sm text-muted">
                   {new Date(order.placedAt).toLocaleString()} ·{" "}
                   {order.lines.length} item(s) · {order.type}

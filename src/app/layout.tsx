@@ -1,5 +1,22 @@
 import type { Metadata, Viewport } from "next";
+import { Rokkitt } from "next/font/google";
 import "./globals.css";
+
+/**
+ * Rokkitt is a Clarendon-style slab serif — the Egyptian/playbill genre used
+ * on Western wanted posters and saloon signage, which is the register the
+ * restaurant's film-set interior is going for. Picked over the heavier display
+ * slabs (Bevan, Alfa Slab One) because those ship a single 400 weight, and the
+ * layouts here lean on `font-bold` throughout; Rokkitt is variable, so bold
+ * headings stay real weights rather than synthetic smears.
+ */
+const displayFont = Rokkitt({
+  subsets: ["latin"],
+  weight: ["500", "600", "700", "800"],
+  variable: "--font-rokkitt",
+  display: "swap",
+  fallback: ["Georgia", "Times New Roman", "serif"],
+});
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
@@ -50,7 +67,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className="h-full antialiased">
+    <html lang="en" className={`h-full antialiased ${displayFont.variable}`}>
       <body className="min-h-full flex flex-col font-sans">
         <AuthProvider>
           <CartProvider>

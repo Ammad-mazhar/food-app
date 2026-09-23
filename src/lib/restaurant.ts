@@ -217,6 +217,32 @@ export const aboutPhotos = {
   },
 } as const;
 
+/**
+ * The dining room's theme, as described by the owner — the interior is dressed
+ * like a Hollywood Western film set, the floor staff are in costume, and there
+ * is a country soundtrack running.
+ *
+ * These are real details about the restaurant, unlike the written-for-the-page
+ * block below. Keep them on this side of that line.
+ */
+export const ambiance = [
+  {
+    key: "set",
+    title: "The Set",
+    text: "The room is dressed like a Hollywood Western film set. Coiled rope, metal horse saddles and cowboy belts hang along the walls, alongside vintage ammunition — unloaded, and fixed in place as display.",
+  },
+  {
+    key: "cast",
+    title: "The Cast",
+    text: "The floor staff are in costume too: khakis, checkered shirts, and a cowboy hat each. You get a “Howdy” on the way in, and it is meant.",
+  },
+  {
+    key: "score",
+    title: "The Score",
+    text: "Country plays steadily under all of it. Loud enough to set the room, quiet enough that the table next to you is still having its own conversation.",
+  },
+] as const;
+
 /* ------------------------------------------------------------------------ *
  * ⚠️  UNVERIFIED COPY — REVIEW BEFORE PUBLISHING
  *
@@ -268,8 +294,8 @@ export const milestones = [
   },
   {
     year: "2017",
-    title: "A Bigger Room",
-    text: "The Saddar branch is rebuilt around an open kitchen, so guests can watch every cut hit the flame instead of wondering what happens behind the pass.",
+    title: "The Room Gets Dressed",
+    text: "The Saddar branch is fitted out as a Western film set — rope, saddles, belts and cased vintage ammunition go up on the walls, and the floor staff get their hats. The steak never changed; the room around it did.",
     photo: aboutPhotos.service,
   },
   {
@@ -306,7 +332,7 @@ export const missionVision = {
     points: [
       "Grow only as fast as we can train grill cooks properly",
       "Keep both kitchens indistinguishable in taste and standard",
-      "Make an open kitchen the norm, not a novelty",
+      "Keep the theme a welcome, never a gimmick",
     ],
     photo: {
       src: "/images/pexels-saveurssecretes-5410401.jpg",
@@ -317,8 +343,8 @@ export const missionVision = {
 
 export const hygienePledges = [
   {
-    title: "An Open Kitchen",
-    text: "Our pass is visible from the dining room. Nothing is prepared out of sight, because a kitchen you can watch is a kitchen that stays clean.",
+    title: "The Props Get Cleaned Too",
+    text: "Rope, saddles, belts and cased ammunition are dusted and wiped down on a set rota. A themed room collects more surfaces, so it takes more cleaning, not less.",
   },
   {
     title: "Daily Deep Clean",
@@ -375,8 +401,12 @@ export const aboutFaqs = [
     a: "We do — nachos, garlic bread, the harvest salad, and our desserts are all vegetarian, and they're prepped on separate boards from the meat line.",
   },
   {
-    q: "Can I see the kitchen?",
-    a: "Please do. The pass at our Saddar branch is open to the dining room, and you're welcome to ask a manager for a closer look at the grill.",
+    q: "Is the ammunition on the walls real?",
+    a: "It's genuine vintage casing, and it is completely unloaded and fixed in place as display. It's set dressing, the same as the rope and the saddles.",
+  },
+  {
+    q: "Is the Western theme a kids' thing?",
+    a: "It's a steakhouse first — the room is dressed, not a costume party. Children tend to love the hats and the saddles, but it's a normal dinner for everyone else.",
   },
   {
     q: "Do you take large bookings?",

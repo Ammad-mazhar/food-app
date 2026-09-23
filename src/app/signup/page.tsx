@@ -18,7 +18,7 @@ export default function SignupPage() {
   const [submitting, setSubmitting] = useState(false);
 
   const inputClass =
-    "w-full rounded-lg border border-border-strong bg-bg-elevated px-4 py-2 text-sm text-cream placeholder:text-faint focus:border-gold focus:outline-none";
+    "w-full rounded-lg border border-border-strong bg-field px-4 py-2 text-sm text-ink placeholder:text-faint focus:border-gold focus:outline-none";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -36,7 +36,7 @@ export default function SignupPage() {
   if (isSignedIn) {
     return (
       <div className="mx-auto max-w-md px-4 py-24 text-center sm:px-6">
-        <h1 className="font-display text-2xl font-bold text-cream">
+        <h1 className="font-display text-2xl font-bold text-ink">
           You already have an account here
         </h1>
         <Link
@@ -51,7 +51,7 @@ export default function SignupPage() {
 
   return (
     <div className="mx-auto flex max-w-md flex-col px-4 py-16 sm:px-6">
-      <h1 className="font-display text-3xl font-bold text-cream">
+      <h1 className="font-display text-3xl font-bold text-ink">
         Create your account
       </h1>
       <p className="mb-8 mt-1 text-muted">
@@ -64,7 +64,7 @@ export default function SignupPage() {
         className="flex flex-col gap-4 rounded-xl border border-border bg-surface p-6"
       >
         <div>
-          <label htmlFor="signup-name" className="mb-1 block text-sm font-medium text-cream">
+          <label htmlFor="signup-name" className="mb-1 block text-sm font-medium text-ink">
             Full name
           </label>
           <input
@@ -80,7 +80,7 @@ export default function SignupPage() {
           />
         </div>
         <div>
-          <label htmlFor="signup-email" className="mb-1 block text-sm font-medium text-cream">
+          <label htmlFor="signup-email" className="mb-1 block text-sm font-medium text-ink">
             Email
           </label>
           <input
@@ -96,7 +96,7 @@ export default function SignupPage() {
           />
         </div>
         <div>
-          <label htmlFor="signup-phone" className="mb-1 block text-sm font-medium text-cream">
+          <label htmlFor="signup-phone" className="mb-1 block text-sm font-medium text-ink">
             Phone number{" "}
             <span className="font-normal text-faint">(optional)</span>
           </label>
@@ -112,7 +112,7 @@ export default function SignupPage() {
           />
         </div>
         <div>
-          <label htmlFor="signup-password" className="mb-1 block text-sm font-medium text-cream">
+          <label htmlFor="signup-password" className="mb-1 block text-sm font-medium text-ink">
             Password
           </label>
           <input

@@ -21,7 +21,7 @@ export default function Error({
         <FlameIcon className="h-8 w-8" />
       </div>
 
-      <h1 className="font-display text-3xl font-bold text-cream">
+      <h1 className="font-display text-3xl font-bold text-ink">
         Something burned in the kitchen
       </h1>
       <p className="mt-3 text-muted">
@@ -44,7 +44,7 @@ export default function Error({
         </button>
         <Link
           href="/"
-          className="rounded-lg border border-border-strong px-6 py-3 font-semibold text-cream transition hover:scale-105 hover:bg-surface active:scale-95"
+          className="rounded-lg border border-border-strong px-6 py-3 font-semibold text-ink transition hover:scale-105 hover:bg-surface active:scale-95"
         >
           Back Home
         </Link>

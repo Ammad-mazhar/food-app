@@ -9,7 +9,7 @@ export default function NotFound() {
       </div>
 
       <p className="font-display text-6xl font-bold text-gold/25">404</p>
-      <h1 className="mt-2 font-display text-3xl font-bold text-cream">
+      <h1 className="mt-2 font-display text-3xl font-bold text-ink">
         This page went cold
       </h1>
       <p className="mt-3 text-muted">
@@ -26,7 +26,7 @@ export default function NotFound() {
         </Link>
         <Link
           href="/"
-          className="rounded-lg border border-border-strong px-6 py-3 font-semibold text-cream transition hover:scale-105 hover:bg-surface active:scale-95"
+          className="rounded-lg border border-border-strong px-6 py-3 font-semibold text-ink transition hover:scale-105 hover:bg-surface active:scale-95"
         >
           Back Home
         </Link>

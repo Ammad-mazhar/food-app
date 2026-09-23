@@ -36,7 +36,7 @@ export default function OrderDetailPage() {
   if (!order) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-24 text-center sm:px-6">
-        <h1 className="font-display text-2xl font-bold text-cream">
+        <h1 className="font-display text-2xl font-bold text-ink">
           Order not found
         </h1>
         <p className="mt-2 text-muted">
@@ -76,7 +76,7 @@ export default function OrderDetailPage() {
       {/* Status tracker */}
       {!cancelled && (
         <div className="mb-8 rounded-xl border border-border bg-surface p-6">
-          <h2 className="mb-4 font-display font-semibold text-cream">
+          <h2 className="mb-4 font-display font-semibold text-ink">
             Order Status
           </h2>
           <div className="flex items-center justify-between">
@@ -106,37 +106,37 @@ export default function OrderDetailPage() {
 
       <div className="grid gap-6 sm:grid-cols-2">
         <div className="rounded-xl border border-border bg-surface p-6">
-          <h2 className="mb-3 font-display font-semibold text-cream">
+          <h2 className="mb-3 font-display font-semibold text-ink">
             Delivery Details
           </h2>
           <dl className="space-y-1 text-sm">
             <div className="flex justify-between">
               <dt className="text-muted">Type</dt>
-              <dd className="capitalize text-cream">{order.type}</dd>
+              <dd className="capitalize text-ink">{order.type}</dd>
             </div>
             <div className="flex justify-between">
               <dt className="text-muted">Name</dt>
-              <dd className="text-cream">{order.customerName}</dd>
+              <dd className="text-ink">{order.customerName}</dd>
             </div>
             <div className="flex justify-between">
               <dt className="text-muted">Phone</dt>
-              <dd className="text-cream">{order.phone}</dd>
+              <dd className="text-ink">{order.phone}</dd>
             </div>
             {order.address && (
               <div className="flex justify-between gap-4">
                 <dt className="text-muted">Address</dt>
-                <dd className="text-right text-cream">{order.address}</dd>
+                <dd className="text-right text-ink">{order.address}</dd>
               </div>
             )}
             <div className="flex justify-between">
               <dt className="text-muted">Payment</dt>
-              <dd className="capitalize text-cream">{order.paymentMethod}</dd>
+              <dd className="capitalize text-ink">{order.paymentMethod}</dd>
             </div>
           </dl>
         </div>
 
         <div className="rounded-xl border border-border bg-surface p-6">
-          <h2 className="mb-3 font-display font-semibold text-cream">Items</h2>
+          <h2 className="mb-3 font-display font-semibold text-ink">Items</h2>
           <ul className="mb-3 space-y-1 text-sm text-muted">
             {order.lines.map(({ item, quantity, notes }) => (
               <li key={item.id}>
@@ -144,7 +144,7 @@ export default function OrderDetailPage() {
                   <span>
                     {quantity} × {item.name}
                   </span>
-                  <span className="text-cream">
+                  <span className="text-ink">
                     {formatPrice(item.price * quantity)}
                   </span>
                 </div>
@@ -159,19 +159,19 @@ export default function OrderDetailPage() {
           <div className="space-y-1 border-t border-border pt-2 text-sm">
             <div className="flex justify-between">
               <span className="text-muted">Subtotal</span>
-              <span className="text-cream">{formatPrice(order.subtotal)}</span>
+              <span className="text-ink">{formatPrice(order.subtotal)}</span>
             </div>
             {order.deliveryFee > 0 && (
               <div className="flex justify-between">
                 <span className="text-muted">Delivery Fee</span>
-                <span className="text-cream">
+                <span className="text-ink">
                   {formatPrice(order.deliveryFee)}
                 </span>
               </div>
             )}
             <div className="flex justify-between">
               <span className="text-muted">Tax</span>
-              <span className="text-cream">{formatPrice(order.tax)}</span>
+              <span className="text-ink">{formatPrice(order.tax)}</span>
             </div>
             <div className="flex justify-between border-t border-border pt-2 font-display font-bold text-gold-soft">
               <span>Total</span>
@@ -184,7 +184,7 @@ export default function OrderDetailPage() {
       <div className="mt-8 flex justify-center">
         <Link
           href="/menu"
-          className="rounded-lg border border-border-strong px-6 py-3 font-semibold text-cream transition hover:bg-surface"
+          className="rounded-lg border border-border-strong px-6 py-3 font-semibold text-ink transition hover:bg-surface"
         >
           Order More Food
         </Link>

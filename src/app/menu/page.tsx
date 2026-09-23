@@ -65,12 +65,12 @@ export default function MenuPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
       <div className="mb-8">
         <span className="text-xs font-semibold uppercase tracking-widest text-gold">
           The Menu
         </span>
-        <h1 className="mt-1 font-display text-3xl font-bold text-cream">
+        <h1 className="mt-1 font-display text-3xl font-bold text-ink">
           Fire-Grilled Favorites
         </h1>
         <p className="mt-1 text-muted">
@@ -87,11 +87,11 @@ export default function MenuPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           aria-label="Search the menu"
-          className="w-full rounded-lg border border-border-strong bg-surface px-4 py-2 text-sm text-cream placeholder:text-faint focus:border-gold focus:outline-none sm:max-w-xs"
+          className="w-full rounded-lg border border-border-strong bg-field px-4 py-2 text-sm text-ink placeholder:text-faint focus:border-gold focus:outline-none sm:max-w-xs"
         />
 
         <div className="flex flex-wrap items-center gap-4">
-          <label className="flex items-center gap-2 text-sm font-medium text-cream">
+          <label className="flex items-center gap-2 text-sm font-medium text-ink">
             <input
               type="checkbox"
               checked={vegOnly}
@@ -101,12 +101,12 @@ export default function MenuPage() {
             Vegetarian only
           </label>
 
-          <label className="flex items-center gap-2 text-sm font-medium text-cream">
+          <label className="flex items-center gap-2 text-sm font-medium text-ink">
             <span className="text-muted">Sort</span>
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value as SortKey)}
-              className="rounded-lg border border-border-strong bg-surface px-3 py-2 text-sm text-cream focus:border-gold focus:outline-none"
+              className="rounded-lg border border-border-strong bg-field px-3 py-2 text-sm text-ink focus:border-gold focus:outline-none"
             >
               {sortOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -126,7 +126,7 @@ export default function MenuPage() {
             className={`rounded-full border px-4 py-1.5 text-sm font-medium transition ${
               activeCategory === category
                 ? "border-gold bg-gold text-bg"
-                : "border-border-strong text-cream hover:bg-surface"
+                : "border-border-strong text-ink hover:bg-surface"
             }`}
           >
             {category}
@@ -158,18 +158,20 @@ export default function MenuPage() {
           {filtersApplied && (
             <button
               onClick={resetFilters}
-              className="mt-4 rounded-lg border border-border-strong px-5 py-2.5 text-sm font-semibold text-cream transition hover:bg-surface"
+              className="mt-4 rounded-lg border border-border-strong px-5 py-2.5 text-sm font-semibold text-ink transition hover:bg-surface"
             >
               Clear filters
             </button>
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        /* A fourth column on very wide screens — otherwise the extra width
+           just inflates three cards instead of showing more of the menu. */
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
           {filteredItems.map((item, i) => (
             // The first row is above the fold and holds the LCP image, so it
             // loads eagerly instead of waiting on the lazy-load observer.
-            <MenuItemCard key={item.id} item={item} priority={i < 3} />
+            <MenuItemCard key={item.id} item={item} priority={i < 4} />
           ))}
         </div>
       )}

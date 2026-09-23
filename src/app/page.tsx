@@ -85,13 +85,15 @@ export default function Home() {
         >
           <source src={heroVideo.src} type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-linear-to-t from-bg via-black/55 to-black/60" />
+        {/* Scrim stays fully dark top to bottom. Fading it into the page's
+            paper colour washed the video out into a grey haze. */}
+        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/45 to-black/55" />
         <div className="absolute inset-0 bg-linear-to-r from-black/70 via-black/20 to-transparent" />
 
         <div className="animate-hero relative z-10 mx-auto w-full max-w-6xl px-4 pt-20 sm:px-6">
-          <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-gold/30 bg-black/30 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-gold-soft backdrop-blur-sm">
+          <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-on-dark-accent/40 bg-black/35 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-on-dark-accent backdrop-blur-sm">
             <FlameIcon className="animate-flame h-3.5 w-3.5" />
-            Fire-Grilled Since Rawalpindi&apos;s Sadar
+            Open Fire, Cowboy Hats, Saddar Rawalpindi
           </span>
           <h1 className="max-w-2xl font-display text-4xl font-bold leading-[1.1] text-cream drop-shadow-lg sm:text-6xl">
             Bold steaks.
@@ -106,7 +108,7 @@ export default function Home() {
           </p>
 
           <div className="mt-5 flex flex-wrap items-center gap-4 text-sm">
-            <span className="flex items-center gap-1.5 text-gold-soft">
+            <span className="flex items-center gap-1.5 text-on-dark-accent">
               <StarIcon className="h-4 w-4" />
               <StarIcon className="h-4 w-4" />
               <StarIcon className="h-4 w-4" />
@@ -172,7 +174,7 @@ export default function Home() {
             { value: 2, label: "Locations" },
           ].map((stat) => (
             <div key={stat.label} className="text-center">
-              <p className="font-display text-2xl font-bold text-gold-soft sm:text-3xl">
+              <p className="font-display text-2xl font-bold text-gold sm:text-3xl">
                 <StatCounter
                   value={stat.value}
                   decimals={stat.decimals}
@@ -188,13 +190,24 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Autoplaying dish carousel */}
-      <section className="reveal mx-auto max-w-6xl px-4 py-16 sm:px-6">
+      {/* Autoplaying dish carousel. Wider than the reading sections, and
+          rope-framed on large screens so the side gutters read as a deliberate
+          margin rather than dead paper. */}
+      <section className="reveal relative mx-auto max-w-7xl px-4 py-16 sm:px-6">
+        <div
+          aria-hidden
+          className="rule-rope-v absolute inset-y-16 left-4 hidden xl:block"
+        />
+        <div
+          aria-hidden
+          className="rule-rope-v absolute inset-y-16 right-4 hidden xl:block"
+        />
+
         <div className="mb-8 text-center">
           <span className="text-xs font-semibold uppercase tracking-widest text-gold">
             Straight Off The Grill
           </span>
-          <h2 className="mt-1 font-display text-2xl font-bold text-cream sm:text-3xl">
+          <h2 className="mt-1 font-display text-2xl font-bold text-ink sm:text-3xl">
             What We&apos;re Known For
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-sm text-muted">
@@ -202,7 +215,9 @@ export default function Home() {
             or use the arrows to take your time.
           </p>
         </div>
-        <DishCarousel slides={dishCarouselSlides} />
+        <div className="xl:px-14">
+          <DishCarousel slides={dishCarouselSlides} />
+        </div>
       </section>
 
       {/* Why choose us */}
@@ -211,7 +226,7 @@ export default function Home() {
           <span className="text-xs font-semibold uppercase tracking-widest text-gold">
             Why Texas Steak House
           </span>
-          <h2 className="mt-1 font-display text-2xl font-bold text-cream sm:text-3xl">
+          <h2 className="mt-1 font-display text-2xl font-bold text-ink sm:text-3xl">
             Made for Steak Lovers
           </h2>
         </div>
@@ -224,7 +239,7 @@ export default function Home() {
               <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full border border-gold/40 text-gold">
                 <item.icon className="h-5 w-5" />
               </div>
-              <h3 className="font-display font-semibold text-cream">
+              <h3 className="font-display font-semibold text-ink">
                 {item.title}
               </h3>
               <p className="mt-1.5 text-sm text-muted">{item.text}</p>
@@ -249,15 +264,21 @@ export default function Home() {
             <span className="text-xs font-semibold uppercase tracking-widest text-gold">
               Our Story
             </span>
-            <h2 className="mt-1 font-display text-2xl font-bold text-cream sm:text-3xl">
+            <h2 className="mt-1 font-display text-2xl font-bold text-ink sm:text-3xl">
               Built Around the Grill
             </h2>
             <p className="mt-4 text-muted">
               {restaurantInfo.name} opened in {heritage.foundedYear} with one
               idea: cook everything fresh, over real fire, and never take
-              shortcuts. That&apos;s still the standard today across both our
-              Saddar and E-7 locations — hand-cut steaks, made-to-order sides,
-              and nothing pulled from a freezer.
+              shortcuts. That&apos;s still the standard across both our Saddar
+              and E-7 locations — hand-cut steaks, made-to-order sides, and
+              nothing pulled from a freezer.
+            </p>
+            <p className="mt-4 text-muted">
+              The room leans the other way entirely. Saddar is dressed like a
+              Hollywood Western film set — rope and saddles on the walls,
+              waiters in cowboy hats, country playing underneath. Serious
+              kitchen, unserious room.
             </p>
             <Link
               href="/about"
@@ -271,12 +292,12 @@ export default function Home() {
 
       {/* Room carousel */}
       <section className="reveal border-b border-border bg-bg-elevated py-16">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 xl:px-20">
           <div className="mb-8 text-center">
             <span className="text-xs font-semibold uppercase tracking-widest text-gold">
               Step Inside
             </span>
-            <h2 className="mt-1 font-display text-2xl font-bold text-cream sm:text-3xl">
+            <h2 className="mt-1 font-display text-2xl font-bold text-ink sm:text-3xl">
               The Room You&apos;ll Be Eating In
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-sm text-muted">
@@ -299,7 +320,7 @@ export default function Home() {
             <span className="text-xs font-semibold uppercase tracking-widest text-gold">
               A Taste of the Room
             </span>
-            <h2 className="mt-1 font-display text-2xl font-bold text-cream sm:text-3xl">
+            <h2 className="mt-1 font-display text-2xl font-bold text-ink sm:text-3xl">
               Behind the Flame
             </h2>
           </div>
@@ -334,7 +355,7 @@ export default function Home() {
           <span className="text-xs font-semibold uppercase tracking-widest text-gold">
             Getting Your Food
           </span>
-          <h2 className="mt-1 font-display text-2xl font-bold text-cream sm:text-3xl">
+          <h2 className="mt-1 font-display text-2xl font-bold text-ink sm:text-3xl">
             How It Works
           </h2>
         </div>
@@ -347,7 +368,7 @@ export default function Home() {
               <span className="font-display text-4xl font-bold text-gold/25">
                 {step.step}
               </span>
-              <h3 className="mt-2 font-display text-lg font-semibold text-cream">
+              <h3 className="mt-2 font-display text-lg font-semibold text-ink">
                 {step.title}
               </h3>
               <p className="mt-1.5 text-sm text-muted">{step.text}</p>
@@ -364,7 +385,7 @@ export default function Home() {
               <span className="text-xs font-semibold uppercase tracking-widest text-gold">
                 Fan Favorites
               </span>
-              <h2 className="mt-1 font-display text-2xl font-bold text-cream sm:text-3xl">
+              <h2 className="mt-1 font-display text-2xl font-bold text-ink sm:text-3xl">
                 Signature Dishes
               </h2>
             </div>
@@ -396,9 +417,9 @@ export default function Home() {
         >
           <source src={ctaVideo.src} type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-linear-to-t from-bg via-black/70 to-black/50" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/60 to-black/55" />
         <div className="relative z-10 mx-auto w-full max-w-3xl px-4 text-center sm:px-6">
-          <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-gold/30 bg-black/30 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-gold-soft backdrop-blur-sm">
+          <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-on-dark-accent/40 bg-black/35 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-on-dark-accent backdrop-blur-sm">
             <FlameIcon className="animate-flame h-3.5 w-3.5" />
             Table for Two? Table for Ten?
           </span>
@@ -428,7 +449,7 @@ export default function Home() {
           <span className="text-xs font-semibold uppercase tracking-widest text-gold">
             Visit Us
           </span>
-          <h2 className="mt-1 font-display text-2xl font-bold text-cream sm:text-3xl">
+          <h2 className="mt-1 font-display text-2xl font-bold text-ink sm:text-3xl">
             Our Locations
           </h2>
         </div>
@@ -438,24 +459,24 @@ export default function Home() {
               key={loc.label}
               className="flex flex-col rounded-2xl border border-border bg-surface p-6 sm:p-8"
             >
-              <h3 className="font-display text-xl font-semibold text-cream">
+              <h3 className="font-display text-xl font-semibold text-ink">
                 {loc.label}
               </h3>
               <div className="mt-4 flex flex-col gap-3 text-sm">
                 <div className="flex items-start gap-3">
                   <PinIcon className="mt-0.5 h-5 w-5 shrink-0 text-gold" />
-                  <p className="text-cream">{loc.address}</p>
+                  <p className="text-ink">{loc.address}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <ClockIcon className="h-5 w-5 shrink-0 text-gold" />
-                  <p className="text-cream">{loc.hours}</p>
+                  <p className="text-ink">{loc.hours}</p>
                 </div>
                 {loc.phone && (
                   <div className="flex items-center gap-3">
                     <PhoneIcon className="h-5 w-5 shrink-0 text-gold" />
                     <a
                       href={`tel:${loc.phone}`}
-                      className="text-cream hover:text-gold-soft"
+                      className="text-ink hover:text-ember"
                     >
                       {loc.phone}
                     </a>
@@ -468,7 +489,7 @@ export default function Home() {
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-5 w-fit rounded-lg border border-border-strong px-5 py-2.5 text-sm font-semibold text-cream transition hover:bg-bg-elevated"
+                className="mt-5 w-fit rounded-lg border border-border-strong px-5 py-2.5 text-sm font-semibold text-ink transition hover:bg-bg-elevated"
               >
                 Get Directions
               </a>

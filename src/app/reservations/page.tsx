@@ -23,7 +23,7 @@ export default function ReservationsPage() {
   if (reservations.length === 0) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-24 text-center sm:px-6">
-        <h1 className="font-display text-2xl font-bold text-cream">
+        <h1 className="font-display text-2xl font-bold text-ink">
           No reservations yet
         </h1>
         <p className="mt-2 text-muted">
@@ -41,7 +41,7 @@ export default function ReservationsPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-      <h1 className="mb-8 font-display text-3xl font-bold text-cream">
+      <h1 className="mb-8 font-display text-3xl font-bold text-ink">
         My Reservations
       </h1>
       <div className="flex flex-col gap-4">
@@ -52,7 +52,7 @@ export default function ReservationsPage() {
           >
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="font-semibold text-cream">
+                <p className="font-semibold text-ink">
                   {res.date} at {res.time}
                 </p>
                 <p className="text-sm text-muted">
@@ -88,7 +88,7 @@ export default function ReservationsPage() {
                     </button>
                     <button
                       onClick={() => setConfirmingId(null)}
-                      className="rounded-lg border border-border-strong px-4 py-2 text-sm font-semibold text-cream transition hover:bg-surface-hover"
+                      className="rounded-lg border border-border-strong px-4 py-2 text-sm font-semibold text-ink transition hover:bg-surface-hover"
                     >
                       Keep it
                     </button>

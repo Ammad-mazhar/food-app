@@ -27,7 +27,7 @@ const socialIcons = {
 
 export default function Footer() {
   return (
-    <footer className="relative mt-16 overflow-hidden border-t border-white/10 bg-bg-elevated/60 backdrop-blur-xl">
+    <footer className="relative mt-16 overflow-hidden border-t border-border bg-bg-elevated">
       {/* Animated gold shimmer line along the top edge */}
       <div
         className="absolute inset-x-0 top-0 h-px opacity-70"
@@ -38,13 +38,13 @@ export default function Footer() {
           animation: "shimmer-drift 6s linear infinite",
         }}
       />
-      {/* Soft ambient glow blobs to reinforce the glass feel */}
-      <div className="pointer-events-none absolute -left-24 -top-24 h-64 w-64 rounded-full bg-ember/10 blur-3xl" />
-      <div className="pointer-events-none absolute -right-24 bottom-0 h-64 w-64 rounded-full bg-gold/10 blur-3xl" />
+      {/* Soft ambient warmth in the corners */}
+      <div className="pointer-events-none absolute -left-24 -top-24 h-64 w-64 rounded-full bg-ember/5 blur-3xl" />
+      <div className="pointer-events-none absolute -right-24 bottom-0 h-64 w-64 rounded-full bg-gold/5 blur-3xl" />
 
       <div className="relative mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-4">
         <div>
-          <h3 className="mb-3 flex items-center gap-2 font-display text-lg font-bold text-cream">
+          <h3 className="mb-3 flex items-center gap-2 font-display text-lg font-bold text-ink">
             <FlameIcon className="h-5 w-5 text-gold" />
             {restaurantInfo.name}
           </h3>
@@ -62,7 +62,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={social.label}
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-border-strong text-cream transition hover:scale-110 hover:border-gold hover:text-gold-soft"
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-border-strong text-ink transition hover:scale-110 hover:border-ember hover:text-ember"
                 >
                   <Icon className="h-4 w-4" />
                 </a>
@@ -128,7 +128,7 @@ export default function Footer() {
         ))}
       </div>
 
-      <div className="relative border-t border-white/10 py-4 text-center text-xs text-faint">
+      <div className="relative border-t border-border py-4 text-center text-xs text-faint">
         © {new Date().getFullYear()} {restaurantInfo.name}. All rights
         reserved.
       </div>

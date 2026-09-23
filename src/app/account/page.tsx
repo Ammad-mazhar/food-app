@@ -28,7 +28,7 @@ export default function AccountPage() {
   const [saved, setSaved] = useState(false);
 
   const inputClass =
-    "w-full rounded-lg border border-border-strong bg-bg-elevated px-4 py-2 text-sm text-cream placeholder:text-faint focus:border-gold focus:outline-none";
+    "w-full rounded-lg border border-border-strong bg-field px-4 py-2 text-sm text-ink placeholder:text-faint focus:border-gold focus:outline-none";
 
   function startEditing() {
     setName(account?.name ?? "");
@@ -52,7 +52,7 @@ export default function AccountPage() {
   if (!isSignedIn || !account) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-        <h1 className="mb-8 font-display text-3xl font-bold text-cream">
+        <h1 className="mb-8 font-display text-3xl font-bold text-ink">
           My Account
         </h1>
 
@@ -60,7 +60,7 @@ export default function AccountPage() {
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-gold/40 text-gold">
             <UsersIcon className="h-6 w-6" />
           </div>
-          <h2 className="font-display text-xl font-semibold text-cream">
+          <h2 className="font-display text-xl font-semibold text-ink">
             You&apos;re not signed in
           </h2>
           <p className="mx-auto mt-2 max-w-sm text-sm text-muted">
@@ -76,7 +76,7 @@ export default function AccountPage() {
             </Link>
             <Link
               href="/signup"
-              className="rounded-lg border border-border-strong px-5 py-2.5 text-sm font-semibold text-cream transition hover:bg-surface-hover"
+              className="rounded-lg border border-border-strong px-5 py-2.5 text-sm font-semibold text-ink transition hover:bg-surface-hover"
             >
               Create Account
             </Link>
@@ -84,7 +84,7 @@ export default function AccountPage() {
         </div>
 
         <div className="mt-6 rounded-2xl border border-border bg-surface p-6">
-          <h2 className="mb-3 font-display font-semibold text-cream">
+          <h2 className="mb-3 font-display font-semibold text-ink">
             Browse without an account
           </h2>
           <ul className="flex flex-col gap-2 text-sm">
@@ -117,16 +117,16 @@ export default function AccountPage() {
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl font-bold text-cream">
+          <h1 className="font-display text-3xl font-bold text-ink">
             My Account
           </h1>
           <p className="mt-1 text-muted">
-            Signed in as <span className="text-cream">{account.email}</span>
+            Signed in as <span className="text-ink">{account.email}</span>
           </p>
         </div>
         <button
           onClick={logOut}
-          className="rounded-lg border border-border-strong px-5 py-2.5 text-sm font-semibold text-cream transition hover:bg-surface-hover"
+          className="rounded-lg border border-border-strong px-5 py-2.5 text-sm font-semibold text-ink transition hover:bg-surface-hover"
         >
           Log Out
         </button>
@@ -162,7 +162,7 @@ export default function AccountPage() {
 
       <div className="mt-6 rounded-2xl border border-border bg-surface p-6">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-display text-lg font-semibold text-cream">
+          <h2 className="font-display text-lg font-semibold text-ink">
             Profile
           </h2>
           {!editing && (
@@ -178,7 +178,7 @@ export default function AccountPage() {
         {editing ? (
           <form onSubmit={handleSave} className="flex flex-col gap-4">
             <div>
-              <label htmlFor="acct-name" className="mb-1 block text-sm font-medium text-cream">
+              <label htmlFor="acct-name" className="mb-1 block text-sm font-medium text-ink">
                 Full name
               </label>
               <input
@@ -189,7 +189,7 @@ export default function AccountPage() {
               />
             </div>
             <div>
-              <label htmlFor="acct-phone" className="mb-1 block text-sm font-medium text-cream">
+              <label htmlFor="acct-phone" className="mb-1 block text-sm font-medium text-ink">
                 Phone number
               </label>
               <input
@@ -202,7 +202,7 @@ export default function AccountPage() {
               />
             </div>
             <div>
-              <label htmlFor="acct-address" className="mb-1 block text-sm font-medium text-cream">
+              <label htmlFor="acct-address" className="mb-1 block text-sm font-medium text-ink">
                 Default delivery address
               </label>
               <textarea
@@ -224,7 +224,7 @@ export default function AccountPage() {
               <button
                 type="button"
                 onClick={() => setEditing(false)}
-                className="rounded-lg border border-border-strong px-5 py-2.5 text-sm font-semibold text-cream transition hover:bg-surface-hover"
+                className="rounded-lg border border-border-strong px-5 py-2.5 text-sm font-semibold text-ink transition hover:bg-surface-hover"
               >
                 Cancel
               </button>
@@ -234,21 +234,21 @@ export default function AccountPage() {
           <dl className="grid gap-3 text-sm sm:grid-cols-2">
             <div>
               <dt className="text-muted">Name</dt>
-              <dd className="text-cream">{account.name}</dd>
+              <dd className="text-ink">{account.name}</dd>
             </div>
             <div>
               <dt className="text-muted">Email</dt>
-              <dd className="text-cream">{account.email}</dd>
+              <dd className="text-ink">{account.email}</dd>
             </div>
             <div>
               <dt className="text-muted">Phone</dt>
-              <dd className="text-cream">
+              <dd className="text-ink">
                 {account.phone || <span className="text-faint">Not set</span>}
               </dd>
             </div>
             <div>
               <dt className="text-muted">Default address</dt>
-              <dd className="text-cream">
+              <dd className="text-ink">
                 {account.address || <span className="text-faint">Not set</span>}
               </dd>
             </div>
@@ -257,7 +257,7 @@ export default function AccountPage() {
       </div>
 
       <div className="mt-6 rounded-2xl border border-border bg-surface p-6">
-        <h2 className="mb-3 font-display font-semibold text-cream">
+        <h2 className="mb-3 font-display font-semibold text-ink">
           Quick Links
         </h2>
         <ul className="flex flex-col gap-2 text-sm">

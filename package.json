@@ -15,7 +15,10 @@
     "db:seed": "tsx prisma/seed.ts",
     "postinstall": "prisma generate",
     "db:check": "tsx prisma/check.ts",
-    "db:staff": "tsx prisma/create-staff.ts"
+    "db:staff": "tsx prisma/create-staff.ts",
+    "db:accounts": "tsx prisma/accounts.ts",
+    "db:accounts:list": "tsx prisma/list-accounts.ts",
+    "db:promote": "tsx prisma/promote.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",

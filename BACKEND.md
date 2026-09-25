@@ -33,13 +33,35 @@ statements, which a transaction pooler does not support; without that flag
 you'll get intermittent `prepared statement "s0" already exists` errors under
 load rather than a clean failure.
 
-Then generate a session secret:
+Then generate a session secret.
+
+**`SESSION_SECRET` does not come from Supabase.** It isn't in their dashboard
+and no external service needs to know it. It's a random string you invent,
+used as the HMAC key that hashes session tokens before they're stored
+(`src/lib/session.ts`), so a leaked session table isn't a list of working
+logins.
 
 ```bash
-openssl rand -base64 32
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 ```
 
-Paste it as `SESSION_SECRET`. Changing it later logs everybody out.
+Or in Windows PowerShell 5.1, without Node:
+
+```powershell
+$rng = New-Object System.Security.Cryptography.RNGCryptoServiceProvider
+$b = New-Object byte[] 32
+$rng.GetBytes($b)
+[Convert]::ToBase64String($b)
+```
+
+Don't reach for `Get-Random` (not cryptographically secure) or
+`RandomNumberGenerator::Fill` (.NET Core only — on PowerShell 5.1 it throws and
+leaves the buffer as 32 zero bytes, which still base64-encodes to something
+that looks like a real secret).
+
+Paste the output as `SESSION_SECRET`. Use a different value per environment,
+and don't paste it into a chat, an issue or a commit. Changing it later logs
+everybody out.
 
 ## 3. Create the tables
 

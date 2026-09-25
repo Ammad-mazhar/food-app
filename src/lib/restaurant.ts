@@ -12,8 +12,18 @@
  * edit the fallback, before going live. Getting this wrong means share cards
  * and sitemap entries point at the wrong host.
  */
-export const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://texas-steak-house.example.com";
+const FALLBACK_SITE_URL = "https://texas-steak-house.example.com";
+
+/*
+ * `||` rather than `??` on purpose: a blank `NEXT_PUBLIC_SITE_URL=` line in
+ * .env arrives as "" not undefined, which `??` would happily pass through to
+ * `new URL("")` — that throws, and metadataBase failing takes every page with
+ * it. The trailing slash is stripped so `${siteUrl}/menu` can't become a
+ * double slash in the sitemap.
+ */
+export const siteUrl = (
+  process.env.NEXT_PUBLIC_SITE_URL?.trim() || FALLBACK_SITE_URL
+).replace(/\/+$/, "");
 
 export const restaurantInfo = {
   name: "Texas Steak House",

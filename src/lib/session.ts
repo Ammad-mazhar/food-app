@@ -12,7 +12,7 @@ function secret(): string {
   const value = process.env.SESSION_SECRET;
   if (!value) {
     throw new Error(
-      "SESSION_SECRET is not set. Generate one with `openssl rand -base64 32` and add it to .env."
+      'SESSION_SECRET is not set. Generate one with `node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'base64\'))"` and add it to .env.'
     );
   }
   return value;

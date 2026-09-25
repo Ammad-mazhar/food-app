@@ -84,12 +84,31 @@ export async function destroySession(): Promise<void> {
   store.delete(SESSION_COOKIE);
 }
 
-/** Throws a 401-shaped error unless the caller is signed in as staff. */
+/**
+ * True for STAFF and ADMIN — admin is staff plus more, never less.
+ *
+ * Typed as a predicate so `if (!isStaff(account)) return …` narrows `account`
+ * to non-null afterwards, rather than every caller needing its own null check.
+ */
+export function isStaff(account: Account | null): account is Account {
+  return account?.role === "STAFF" || account?.role === "ADMIN";
+}
+
+export function isAdmin(account: Account | null): account is Account {
+  return account?.role === "ADMIN";
+}
+
+/** Throws a 401-shaped error unless the caller is signed in as staff or admin. */
 export async function requireStaff(): Promise<Account> {
   const account = await getSessionAccount();
-  if (!account || account.role !== "STAFF") {
-    throw new UnauthorizedError();
-  }
+  if (!isStaff(account)) throw new UnauthorizedError();
+  return account;
+}
+
+/** Throws unless the caller is an admin specifically. */
+export async function requireAdmin(): Promise<Account> {
+  const account = await getSessionAccount();
+  if (!isAdmin(account)) throw new UnauthorizedError();
   return account;
 }
 

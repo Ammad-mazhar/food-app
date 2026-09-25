@@ -6,7 +6,9 @@ import {
   createReservationSchema,
   handle,
   makeReference,
+  notFound,
   ok,
+  unauthorized,
 } from "@/lib/api";
 
 export async function GET() {
@@ -22,6 +24,49 @@ export async function GET() {
     });
 
     return ok({ reservations });
+  });
+}
+
+/**
+ * Cancel your own booking.
+ *
+ * Deliberately narrower than the staff endpoint: a customer may only move a
+ * booking to CANCELLED, and only one that belongs to their account. Confirming
+ * a table is the restaurant's call, not the diner's.
+ */
+export async function PATCH(request: Request) {
+  return handle(async () => {
+    const account = await getSessionAccount();
+    if (!account) return unauthorized();
+
+    const body = await request.json().catch(() => null);
+    const reference =
+      body && typeof body.reference === "string" ? body.reference : null;
+    if (!reference) return badRequest("reference is required.");
+    if (!body || body.status !== "CANCELLED") {
+      return badRequest("You can only cancel a booking here.");
+    }
+
+    const existing = await prisma.reservation.findUnique({
+      where: { reference },
+    });
+    // Same response for "not yours" and "doesn't exist", so the endpoint can't
+    // be used to probe other people's references.
+    if (!existing || existing.accountId !== account.id) {
+      return notFound("We couldn't find that booking.");
+    }
+
+    if (existing.status === "CANCELLED" || existing.status === "COMPLETED") {
+      return conflict("That booking is already closed.");
+    }
+
+    const reservation = await prisma.reservation.update({
+      where: { reference },
+      data: { status: "CANCELLED" },
+      include: { table: true },
+    });
+
+    return ok({ reservation });
   });
 }
 

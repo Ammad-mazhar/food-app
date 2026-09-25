@@ -2,7 +2,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { menuItems } from "@/lib/data";
+import {
+  getMenuItem,
+  getMenu,
+  getReviews,
+  getFavouriteIds,
+} from "@/lib/queries";
+import { getSessionAccount } from "@/lib/session";
 import { restaurantInfo } from "@/lib/restaurant";
 import { formatPrice } from "@/lib/utils";
 import DishArt from "@/components/DishArt";
@@ -16,16 +22,18 @@ import RecentlyViewed, {
 } from "@/components/RecentlyViewed";
 import { FlameIcon, LeafIcon, ClockIcon, PinIcon } from "@/components/icons";
 
-/** Prerender every dish page at build time — the menu is a fixed list. */
-export function generateStaticParams() {
-  return menuItems.map((item) => ({ id: item.id }));
-}
+/**
+ * Rendered per request now that the menu lives in the database — prices,
+ * availability and reviews all change without a deploy, and the page also
+ * shows whether *this* visitor has hearted the dish.
+ */
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
 }: PageProps<"/menu/[id]">): Promise<Metadata> {
   const { id } = await params;
-  const item = menuItems.find((i) => i.id === id);
+  const item = await getMenuItem(id);
   if (!item) return { title: `Dish not found | ${restaurantInfo.name}` };
 
   return {
@@ -41,10 +49,17 @@ export async function generateMetadata({
 
 export default async function DishPage({ params }: PageProps<"/menu/[id]">) {
   const { id } = await params;
-  const item = menuItems.find((i) => i.id === id);
+  const item = await getMenuItem(id);
   if (!item) notFound();
 
-  const related = menuItems
+  const [allItems, reviewData, favouriteIds, account] = await Promise.all([
+    getMenu(),
+    getReviews(item.id),
+    getFavouriteIds(),
+    getSessionAccount(),
+  ]);
+
+  const related = allItems
     .filter((i) => i.category === item.category && i.id !== item.id)
     .slice(0, 3);
 
@@ -111,6 +126,7 @@ export default async function DishPage({ params }: PageProps<"/menu/[id]">) {
                 itemId={item.id}
                 itemName={item.name}
                 variant="inline"
+                initialFavourite={favouriteIds.includes(item.id)}
               />
               <ShareButton title={item.name} text={item.description} />
             </div>
@@ -125,7 +141,7 @@ export default async function DishPage({ params }: PageProps<"/menu/[id]">) {
             restaurant.
           </p>
 
-          <AddToCartPanel item={item} />
+          <AddToCartPanel item={item} soldOut={!item.isAvailable} />
 
           {(item.allergens || item.nutrition) && (
             <div className="mt-8 grid gap-4 border-t border-border pt-6 sm:grid-cols-2">
@@ -214,7 +230,17 @@ export default async function DishPage({ params }: PageProps<"/menu/[id]">) {
 
       <TrackRecentlyViewed itemId={item.id} />
 
-      <DishReviews itemId={item.id} itemName={item.name} />
+      <DishReviews
+        itemId={item.id}
+        itemName={item.name}
+        initialReviews={reviewData.reviews.map((r) => ({
+          ...r,
+          createdAt: r.createdAt.toISOString(),
+        }))}
+        initialAverage={reviewData.average}
+        signedIn={account !== null}
+        currentAccountId={account?.id ?? null}
+      />
 
       <RecentlyViewed excludeId={item.id} />
 
@@ -225,7 +251,12 @@ export default async function DishPage({ params }: PageProps<"/menu/[id]">) {
           </h2>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {related.map((r) => (
-              <MenuItemCard key={r.id} item={r} />
+              <MenuItemCard
+                key={r.id}
+                item={r}
+                initialFavourite={favouriteIds.includes(r.id)}
+                soldOut={!r.isAvailable}
+              />
             ))}
           </div>
         </section>

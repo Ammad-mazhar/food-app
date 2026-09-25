@@ -1,60 +1,21 @@
-"use client";
-
 import Link from "next/link";
-import { useState, useSyncExternalStore } from "react";
-import { useAuth } from "@/context/AuthContext";
-import { ordersStore, reservationsStore } from "@/lib/storage";
+import { prisma } from "@/lib/prisma";
+import { getSessionAccount, isStaff } from "@/lib/session";
 import { formatPrice } from "@/lib/utils";
 import {
   pointsForOrderTotal,
   LOYALTY_POINTS_PER_REWARD,
   LOYALTY_REWARD_VALUE,
-} from "@/lib/data";
-import { UsersIcon, CheckIcon, SparkleIcon } from "@/components/icons";
+} from "@/lib/pricing";
+import AccountProfile from "@/components/AccountProfile";
+import { UsersIcon, SparkleIcon } from "@/components/icons";
 
-export default function AccountPage() {
-  const { account, isSignedIn, logOut, updateProfile } = useAuth();
+export const dynamic = "force-dynamic";
 
-  const orders = useSyncExternalStore(
-    ordersStore.subscribe,
-    ordersStore.read,
-    ordersStore.getServerSnapshot
-  );
-  const reservations = useSyncExternalStore(
-    reservationsStore.subscribe,
-    reservationsStore.read,
-    reservationsStore.getServerSnapshot
-  );
+export default async function AccountPage() {
+  const account = await getSessionAccount();
 
-  const [editing, setEditing] = useState(false);
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
-  const [saved, setSaved] = useState(false);
-
-  const inputClass =
-    "w-full rounded-lg border border-border-strong bg-field px-4 py-2 text-sm text-ink placeholder:text-faint focus:border-gold focus:outline-none";
-
-  function startEditing() {
-    setName(account?.name ?? "");
-    setPhone(account?.phone ?? "");
-    setAddress(account?.address ?? "");
-    setEditing(true);
-  }
-
-  function handleSave(e: React.FormEvent) {
-    e.preventDefault();
-    updateProfile({
-      name: name.trim() || account?.name,
-      phone: phone.trim() || undefined,
-      address: address.trim() || undefined,
-    });
-    setEditing(false);
-    setSaved(true);
-    window.setTimeout(() => setSaved(false), 2000);
-  }
-
-  if (!isSignedIn || !account) {
+  if (!account) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
         <h1 className="mb-8 font-display text-3xl font-bold text-ink">
@@ -69,8 +30,8 @@ export default function AccountPage() {
             You&apos;re not signed in
           </h2>
           <p className="mx-auto mt-2 max-w-sm text-sm text-muted">
-            Sign in to keep your details on hand at checkout and see your
-            orders and reservations in one place.
+            Sign in to keep your details on hand at checkout and see your orders
+            and reservations in one place.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Link
@@ -87,43 +48,28 @@ export default function AccountPage() {
             </Link>
           </div>
         </div>
-
-        <div className="mt-6 rounded-2xl border border-border bg-surface p-6">
-          <h2 className="mb-3 font-display font-semibold text-ink">
-            Browse without an account
-          </h2>
-          <ul className="flex flex-col gap-2 text-sm">
-            <li>
-              <Link href="/orders" className="text-gold-soft hover:underline">
-                My Orders
-              </Link>
-            </li>
-            <li>
-              <Link href="/reservations" className="text-gold-soft hover:underline">
-                My Reservations
-              </Link>
-            </li>
-            <li>
-              <Link href="/menu" className="text-gold-soft hover:underline">
-                Browse Menu
-              </Link>
-            </li>
-          </ul>
-        </div>
       </div>
     );
   }
 
-  const earning = orders.filter((o) => o.status !== "cancelled");
-  const spent = earning.reduce((sum, o) => sum + o.total, 0);
-  // Orders placed before loyalty existed have no stored figure, so fall back
-  // to recomputing from their total rather than showing them as worth nothing.
-  const points = earning.reduce(
-    (sum, o) => sum + (o.pointsEarned ?? pointsForOrderTotal(o.total)),
+  const [orders, reservationCount] = await Promise.all([
+    prisma.order.findMany({
+      where: { accountId: account.id, status: { not: "CANCELLED" } },
+      select: { total: true, pointsEarned: true },
+    }),
+    prisma.reservation.count({ where: { accountId: account.id } }),
+  ]);
+
+  const spent = orders.reduce((sum, o) => sum + o.total, 0);
+  // Orders placed before loyalty existed have no stored figure, so recompute
+  // from their total rather than showing them as worth nothing.
+  const points = orders.reduce(
+    (sum, o) => sum + (o.pointsEarned || pointsForOrderTotal(o.total)),
     0
   );
   const rewards = Math.floor(points / LOYALTY_POINTS_PER_REWARD);
-  const toNextReward = LOYALTY_POINTS_PER_REWARD - (points % LOYALTY_POINTS_PER_REWARD);
+  const toNextReward =
+    LOYALTY_POINTS_PER_REWARD - (points % LOYALTY_POINTS_PER_REWARD);
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
@@ -136,28 +82,20 @@ export default function AccountPage() {
             Signed in as <span className="text-ink">{account.email}</span>
           </p>
         </div>
-        <button
-          onClick={logOut}
-          className="rounded-lg border border-border-strong px-5 py-2.5 text-sm font-semibold text-ink transition hover:bg-surface-hover"
-        >
-          Log Out
-        </button>
+        {isStaff(account) && (
+          <Link
+            href="/admin"
+            className="rounded-lg bg-ember px-5 py-2.5 text-sm font-semibold text-cream transition hover:bg-ember-soft"
+          >
+            Kitchen Dashboard
+          </Link>
+        )}
       </div>
-
-      {saved && (
-        <p
-          role="status"
-          className="mb-6 flex items-center gap-2 rounded-lg border border-gold/40 bg-gold/10 px-4 py-2.5 text-sm text-gold-soft"
-        >
-          <CheckIcon className="h-4 w-4" />
-          Profile updated.
-        </p>
-      )}
 
       <div className="grid gap-6 sm:grid-cols-3">
         {[
           { label: "Orders", value: orders.length },
-          { label: "Reservations", value: reservations.length },
+          { label: "Reservations", value: reservationCount },
           { label: "Total Spent", value: formatPrice(spent) },
         ].map((stat) => (
           <div
@@ -190,9 +128,7 @@ export default function AccountPage() {
               </p>
             </div>
           </div>
-          <p className="text-xs text-faint">
-            1 point per Rs. 100 spent
-          </p>
+          <p className="text-xs text-faint">1 point per Rs. 100 spent</p>
         </div>
 
         <div
@@ -211,106 +147,17 @@ export default function AccountPage() {
           />
         </div>
         <p className="mt-3 text-xs text-faint">
-          Points are tracked on this device and can&apos;t be redeemed at the
-          till yet — that needs the backend.
+          Points are tracked against your account but can&apos;t be redeemed at
+          the till yet.
         </p>
       </div>
 
-      <div className="mt-6 rounded-2xl border border-border bg-surface p-6">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-display text-lg font-semibold text-ink">
-            Profile
-          </h2>
-          {!editing && (
-            <button
-              onClick={startEditing}
-              className="text-sm font-semibold text-gold-soft hover:underline"
-            >
-              Edit
-            </button>
-          )}
-        </div>
-
-        {editing ? (
-          <form onSubmit={handleSave} className="flex flex-col gap-4">
-            <div>
-              <label htmlFor="acct-name" className="mb-1 block text-sm font-medium text-ink">
-                Full name
-              </label>
-              <input
-                id="acct-name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className={inputClass}
-              />
-            </div>
-            <div>
-              <label htmlFor="acct-phone" className="mb-1 block text-sm font-medium text-ink">
-                Phone number
-              </label>
-              <input
-                id="acct-phone"
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className={inputClass}
-                placeholder="03XX-XXXXXXX"
-              />
-            </div>
-            <div>
-              <label htmlFor="acct-address" className="mb-1 block text-sm font-medium text-ink">
-                Default delivery address
-              </label>
-              <textarea
-                id="acct-address"
-                rows={2}
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                className={inputClass}
-                placeholder="House, street, area, city"
-              />
-            </div>
-            <div className="flex gap-3">
-              <button
-                type="submit"
-                className="rounded-lg bg-ember px-5 py-2.5 text-sm font-semibold text-cream transition hover:bg-ember-soft"
-              >
-                Save Changes
-              </button>
-              <button
-                type="button"
-                onClick={() => setEditing(false)}
-                className="rounded-lg border border-border-strong px-5 py-2.5 text-sm font-semibold text-ink transition hover:bg-surface-hover"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        ) : (
-          <dl className="grid gap-3 text-sm sm:grid-cols-2">
-            <div>
-              <dt className="text-muted">Name</dt>
-              <dd className="text-ink">{account.name}</dd>
-            </div>
-            <div>
-              <dt className="text-muted">Email</dt>
-              <dd className="text-ink">{account.email}</dd>
-            </div>
-            <div>
-              <dt className="text-muted">Phone</dt>
-              <dd className="text-ink">
-                {account.phone || <span className="text-faint">Not set</span>}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-muted">Default address</dt>
-              <dd className="text-ink">
-                {account.address || <span className="text-faint">Not set</span>}
-              </dd>
-            </div>
-          </dl>
-        )}
-      </div>
+      <AccountProfile
+        name={account.name}
+        email={account.email}
+        phone={account.phone}
+        address={account.address}
+      />
 
       <div className="mt-6 rounded-2xl border border-border bg-surface p-6">
         <h2 className="mb-3 font-display font-semibold text-ink">
@@ -324,12 +171,12 @@ export default function AccountPage() {
           </li>
           <li>
             <Link href="/reservations" className="text-gold-soft hover:underline">
-              My Reservations ({reservations.length})
+              My Reservations ({reservationCount})
             </Link>
           </li>
           <li>
-            <Link href="/menu" className="text-gold-soft hover:underline">
-              Browse Menu
+            <Link href="/favourites" className="text-gold-soft hover:underline">
+              Favourites
             </Link>
           </li>
         </ul>

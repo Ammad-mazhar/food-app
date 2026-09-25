@@ -1,45 +1,84 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
-import { favouritesStore, toggleFavourite } from "@/lib/storage";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { HeartIcon } from "@/components/icons";
 
 /**
- * Heart toggle for one dish. Reads through the favourites store so every
- * instance on the page — the card, the dish header, the favourites list —
- * stays in step without prop drilling.
+ * Heart toggle for one dish, backed by the database.
+ *
+ * The initial state comes from the server render, so there's no flash of an
+ * empty heart on a dish the visitor has already saved. The toggle is optimistic
+ * and rolls back if the request fails; a 401 means they aren't signed in, which
+ * is a prompt rather than an error.
  */
 export default function FavoriteButton({
   itemId,
   itemName,
+  initialFavourite = false,
   variant = "overlay",
 }: {
   itemId: string;
   itemName: string;
+  initialFavourite?: boolean;
   /** "overlay" sits on a photo; "inline" sits on a paper surface. */
   variant?: "overlay" | "inline";
 }) {
-  const favourites = useSyncExternalStore(
-    favouritesStore.subscribe,
-    favouritesStore.read,
-    favouritesStore.getServerSnapshot
-  );
-  const isFav = favourites.includes(itemId);
+  const router = useRouter();
+  const [isFav, setIsFav] = useState(initialFavourite);
+  const [needsLogin, setNeedsLogin] = useState(false);
+  const [busy, setBusy] = useState(false);
 
-  const label = isFav
-    ? `Remove ${itemName} from favourites`
-    : `Save ${itemName} to favourites`;
+  async function toggle(e: React.MouseEvent) {
+    // Cards wrap their image in a link; without this the heart would navigate
+    // to the dish instead of toggling.
+    e.preventDefault();
+    e.stopPropagation();
+    if (busy) return;
+
+    const optimistic = !isFav;
+    setIsFav(optimistic);
+    setBusy(true);
+    setNeedsLogin(false);
+
+    try {
+      const res = await fetch("/api/favourites", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ menuItemId: itemId }),
+      });
+
+      if (res.status === 401) {
+        setIsFav(!optimistic);
+        setNeedsLogin(true);
+        return;
+      }
+      if (!res.ok) {
+        setIsFav(!optimistic);
+        return;
+      }
+
+      const data = await res.json();
+      setIsFav(Boolean(data.isFavourite));
+      // Keeps the /favourites page in step if it's the next thing they open.
+      router.refresh();
+    } catch {
+      setIsFav(!optimistic);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const label = needsLogin
+    ? "Log in to save favourites"
+    : isFav
+      ? `Remove ${itemName} from favourites`
+      : `Save ${itemName} to favourites`;
 
   return (
     <button
       type="button"
-      // Cards wrap their image in a link; without this the heart would
-      // navigate to the dish instead of toggling.
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        toggleFavourite(itemId);
-      }}
+      onClick={toggle}
       aria-pressed={isFav}
       aria-label={label}
       title={label}

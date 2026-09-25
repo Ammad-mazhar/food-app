@@ -1,6 +1,6 @@
 import type { Order } from "@/../generated/prisma/client";
 import { prisma } from "@/lib/prisma";
-import { getSessionAccount, safeEqual } from "@/lib/session";
+import { getSessionAccount, isStaff, safeEqual } from "@/lib/session";
 import { handle, notFound, ok } from "@/lib/api";
 
 /**
@@ -23,13 +23,13 @@ async function authorize(
   if (order.accountId) {
     const account = await getSessionAccount();
     const allowed =
-      account && (account.id === order.accountId || account.role === "STAFF");
+      account && (account.id === order.accountId || isStaff(account));
     return allowed ? "ok" : "denied";
   }
 
   // Guest order. Staff can always see it from the dashboard.
   const account = await getSessionAccount();
-  if (account?.role === "STAFF") return "ok";
+  if (isStaff(account)) return "ok";
 
   if (!order.accessToken || !suppliedToken) return "denied";
   return safeEqual(order.accessToken, suppliedToken) ? "ok" : "denied";

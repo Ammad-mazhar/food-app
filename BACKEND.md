@@ -83,20 +83,22 @@ Upserts the 17 dishes, 7 tables and 3 promo codes from `src/lib/data.ts`. Safe
 to run repeatedly — it updates in place and never touches orders, bookings,
 reviews or accounts.
 
-To create yourself a staff login at the same time:
+## 4b. Create a staff login
+
+`/admin` is staff-only, so you need one account with the `STAFF` role:
 
 ```bash
-SEED_STAFF_EMAIL=you@example.com SEED_STAFF_PASSWORD='a-long-password' npm run db:seed
+npm run db:staff
 ```
 
-On Windows PowerShell:
+It asks for an email and password, **with the password hidden as you type** so
+it doesn't land in your shell history. Minimum 12 characters, hashed with
+bcrypt, never printed back. If the email already has an account it offers to
+promote that one instead.
 
-```powershell
-$env:SEED_STAFF_EMAIL="you@example.com"; $env:SEED_STAFF_PASSWORD="a-long-password"; npm run db:seed
-```
-
-The password must be at least 12 characters. It is hashed with bcrypt before
-storage and never printed back.
+`npm run db:seed` also accepts `SEED_STAFF_EMAIL` / `SEED_STAFF_PASSWORD`, but
+prefer `db:staff` — environment variables on the command line are recorded in
+your shell history.
 
 ## 5. Check it
 

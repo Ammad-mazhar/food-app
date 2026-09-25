@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { getSessionAccount } from "@/lib/session";
+import { getSessionAccount, isStaff } from "@/lib/session";
 import {
   badRequest,
   createReviewSchema,
@@ -79,7 +79,7 @@ export async function DELETE(request: Request) {
     const review = await prisma.review.findUnique({ where: { id } });
     if (!review) return notFound();
     // Staff can remove anything; everyone else only their own.
-    if (review.accountId !== account.id && account.role !== "STAFF") {
+    if (review.accountId !== account.id && !isStaff(account)) {
       return unauthorized();
     }
 

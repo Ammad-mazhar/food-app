@@ -11,7 +11,13 @@ import { useCart } from "@/context/CartContext";
  * client component so the page itself can stay a Server Component and keep its
  * generateMetadata / generateStaticParams.
  */
-export default function AddToCartPanel({ item }: { item: MenuItem }) {
+export default function AddToCartPanel({
+  item,
+  soldOut = false,
+}: {
+  item: MenuItem;
+  soldOut?: boolean;
+}) {
   const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
@@ -49,17 +55,28 @@ export default function AddToCartPanel({ item }: { item: MenuItem }) {
 
         <button
           onClick={handleAdd}
+          disabled={soldOut}
           className={`flex-1 rounded-lg px-6 py-3 font-semibold transition ${
-            added
-              ? "animate-pop bg-green-600 text-white"
-              : "bg-ember text-cream shadow-lg shadow-ember/20 hover:scale-105 hover:bg-ember-soft active:scale-95"
+            soldOut
+              ? "cursor-not-allowed border border-border-strong text-faint"
+              : added
+                ? "animate-pop bg-green-600 text-white"
+                : "bg-ember text-cream shadow-lg shadow-ember/20 hover:scale-105 hover:bg-ember-soft active:scale-95"
           }`}
         >
-          {added
-            ? "Added to cart ✓"
-            : `Add ${quantity} to cart · ${formatPrice(item.price * quantity)}`}
+          {soldOut
+            ? "Sold out today"
+            : added
+              ? "Added to cart ✓"
+              : `Add ${quantity} to cart · ${formatPrice(item.price * quantity)}`}
         </button>
       </div>
+
+      {soldOut && (
+        <p className="mt-3 text-sm text-muted">
+          The kitchen has taken this off today&apos;s menu. It&apos;ll be back.
+        </p>
+      )}
 
       {added && (
         <Link

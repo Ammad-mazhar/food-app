@@ -70,16 +70,33 @@ main()
   .catch((error: unknown) => {
     console.error("\nCould not reach the database.");
 
-    // Surface the driver's own diagnosis, but scrub anything that could carry
-    // credentials before printing it.
-    const raw =
-      error instanceof Error
-        ? `${error.message}${error.cause ? ` | cause: ${String((error.cause as Error).message ?? error.cause)}` : ""}`
-        : String(error);
-    const scrubbed = raw.replace(/postgres(ql)?:\/\/\S+/gi, "<connection string>");
-    for (const line of scrubbed.split("\n").slice(0, 6)) {
-      console.error("  " + line.trim());
+    // Prisma leads with a code frame and buries the real cause underneath, so
+    // taking the first few lines showed the source of this file rather than
+    // what actually went wrong. Walk the cause chain and keep the lines that
+    // name a failure instead.
+    const parts: string[] = [];
+    let current: unknown = error;
+    while (current instanceof Error && parts.length < 4) {
+      parts.push(current.message);
+      current = current.cause;
     }
+
+    const scrubbed = parts
+      .join("\n")
+      .replace(/postgres(ql)?:\/\/\S+/gi, "<connection string>");
+
+    const meaningful = scrubbed
+      .split("\n")
+      .map((l) => l.trim())
+      .filter(
+        (l) =>
+          l.length > 0 &&
+          !/^\d+\s*$/.test(l) && // bare line numbers from the code frame
+          !l.startsWith("const ") &&
+          !l.includes("check.ts")
+      );
+
+    for (const line of meaningful.slice(-6)) console.error("  " + line);
 
     if (/ENETUNREACH|EHOSTUNREACH|ENOTFOUND|timeout|ETIMEDOUT/i.test(scrubbed)) {
       console.error(

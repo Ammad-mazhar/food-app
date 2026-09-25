@@ -1,38 +1,47 @@
-"use client";
-
-import { useSyncExternalStore } from "react";
-import { useParams } from "next/navigation";
 import Link from "next/link";
-import { Order } from "@/lib/types";
-import { ordersStore } from "@/lib/storage";
+import { getOrder } from "@/lib/queries";
 import { formatPrice } from "@/lib/utils";
 import OrderActions from "@/components/OrderActions";
 import PrintReceiptButton from "@/components/PrintReceiptButton";
 
-const statusSteps: Order["status"][] = [
-  "placed",
-  "confirmed",
-  "preparing",
-  "out-for-delivery",
-  "completed",
+export const dynamic = "force-dynamic";
+
+const deliverySteps = [
+  "PLACED",
+  "CONFIRMED",
+  "PREPARING",
+  "OUT_FOR_DELIVERY",
+  "COMPLETED",
+];
+const pickupSteps = [
+  "PLACED",
+  "CONFIRMED",
+  "PREPARING",
+  "READY_FOR_PICKUP",
+  "COMPLETED",
 ];
 
-const pickupSteps: Order["status"][] = [
-  "placed",
-  "confirmed",
-  "preparing",
-  "ready-for-pickup",
-  "completed",
-];
+function label(status: string) {
+  return status
+    .toLowerCase()
+    .split("_")
+    .map((w) => w[0].toUpperCase() + w.slice(1))
+    .join(" ");
+}
 
-export default function OrderDetailPage() {
-  const params = useParams<{ id: string }>();
-  const orders = useSyncExternalStore(
-    ordersStore.subscribe,
-    ordersStore.read,
-    ordersStore.getServerSnapshot
-  );
-  const order = orders.find((o) => o.id === params.id);
+/**
+ * The [id] segment carries the order reference. Guests reach their own order
+ * with ?token=… from the checkout link; account holders are authorized by
+ * their session and need no token.
+ */
+export default async function OrderDetailPage({
+  params,
+  searchParams,
+}: PageProps<"/orders/[id]">) {
+  const { id } = await params;
+  const { token } = await searchParams;
+
+  const order = await getOrder(id, typeof token === "string" ? token : undefined);
 
   if (!order) {
     return (
@@ -41,7 +50,8 @@ export default function OrderDetailPage() {
           Order not found
         </h1>
         <p className="mt-2 text-muted">
-          We couldn&apos;t find that order on this device.
+          That reference doesn&apos;t match an order you can see. If you ordered
+          as a guest, use the tracking link from your confirmation.
         </p>
         <Link
           href="/orders"
@@ -53,9 +63,9 @@ export default function OrderDetailPage() {
     );
   }
 
-  const steps = order.type === "delivery" ? statusSteps : pickupSteps;
+  const steps = order.type === "DELIVERY" ? deliverySteps : pickupSteps;
   const currentIndex = steps.indexOf(order.status);
-  const cancelled = order.status === "cancelled";
+  const cancelled = order.status === "CANCELLED";
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
@@ -71,10 +81,9 @@ export default function OrderDetailPage() {
         >
           {cancelled ? "This order was cancelled" : "Order placed successfully!"}
         </h1>
-        <p className="text-sm text-muted">Order ID: {order.id}</p>
+        <p className="text-sm text-muted">Order reference: {order.reference}</p>
       </div>
 
-      {/* Status tracker */}
       {!cancelled && (
         <div className="mb-8 rounded-xl border border-border bg-surface p-6">
           <h2 className="mb-4 font-display font-semibold text-ink">
@@ -92,8 +101,8 @@ export default function OrderDetailPage() {
                 >
                   {index + 1}
                 </div>
-                <span className="mt-2 text-center text-[11px] capitalize text-muted">
-                  {step.replace(/-/g, " ")}
+                <span className="mt-2 text-center text-[11px] text-muted">
+                  {label(step)}
                 </span>
               </div>
             ))}
@@ -102,7 +111,19 @@ export default function OrderDetailPage() {
       )}
 
       <div className="no-print mb-8 flex flex-wrap items-center justify-center gap-2">
-        <OrderActions order={order} layout="stack" />
+        <OrderActions
+          reference={order.reference}
+          status={order.status}
+          token={typeof token === "string" ? token : undefined}
+          layout="stack"
+          lines={order.lines.map((l) => ({
+            menuItemId: l.menuItemId,
+            name: l.name,
+            price: l.price,
+            quantity: l.quantity,
+            notes: l.notes,
+          }))}
+        />
         <PrintReceiptButton />
       </div>
 
@@ -114,7 +135,7 @@ export default function OrderDetailPage() {
           <dl className="space-y-1 text-sm">
             <div className="flex justify-between">
               <dt className="text-muted">Type</dt>
-              <dd className="capitalize text-ink">{order.type}</dd>
+              <dd className="text-ink">{label(order.type)}</dd>
             </div>
             <div className="flex justify-between">
               <dt className="text-muted">Name</dt>
@@ -132,7 +153,7 @@ export default function OrderDetailPage() {
             )}
             <div className="flex justify-between">
               <dt className="text-muted">Payment</dt>
-              <dd className="capitalize text-ink">{order.paymentMethod}</dd>
+              <dd className="text-ink">{label(order.paymentMethod)}</dd>
             </div>
           </dl>
         </div>
@@ -140,19 +161,19 @@ export default function OrderDetailPage() {
         <div className="rounded-xl border border-border bg-surface p-6">
           <h2 className="mb-3 font-display font-semibold text-ink">Items</h2>
           <ul className="mb-3 space-y-1 text-sm text-muted">
-            {order.lines.map(({ item, quantity, notes }) => (
-              <li key={item.id}>
+            {order.lines.map((line) => (
+              <li key={line.id}>
                 <div className="flex justify-between">
                   <span>
-                    {quantity} × {item.name}
+                    {line.quantity} × {line.name}
                   </span>
                   <span className="text-ink">
-                    {formatPrice(item.price * quantity)}
+                    {formatPrice(line.price * line.quantity)}
                   </span>
                 </div>
-                {notes && (
+                {line.notes && (
                   <p className="mt-0.5 text-xs italic text-faint">
-                    &ldquo;{notes}&rdquo;
+                    &ldquo;{line.notes}&rdquo;
                   </p>
                 )}
               </li>
@@ -163,20 +184,18 @@ export default function OrderDetailPage() {
               <span className="text-muted">Subtotal</span>
               <span className="text-ink">{formatPrice(order.subtotal)}</span>
             </div>
-            {order.deliveryFee > 0 && (
-              <div className="flex justify-between">
-                <span className="text-muted">Delivery Fee</span>
-                <span className="text-ink">
-                  {formatPrice(order.deliveryFee)}
-                </span>
-              </div>
-            )}
-            {order.discount != null && order.discount > 0 && (
+            {order.discount > 0 && (
               <div className="flex justify-between text-gold">
                 <span>
                   Discount{order.promoCode ? ` (${order.promoCode})` : ""}
                 </span>
                 <span>−{formatPrice(order.discount)}</span>
+              </div>
+            )}
+            {order.deliveryFee > 0 && (
+              <div className="flex justify-between">
+                <span className="text-muted">Delivery Fee</span>
+                <span className="text-ink">{formatPrice(order.deliveryFee)}</span>
               </div>
             )}
             <div className="flex justify-between">
@@ -187,11 +206,16 @@ export default function OrderDetailPage() {
               <span>Total</span>
               <span>{formatPrice(order.total)}</span>
             </div>
+            {order.pointsEarned > 0 && (
+              <p className="pt-1 text-xs text-faint">
+                Earned {order.pointsEarned} loyalty points.
+              </p>
+            )}
           </div>
         </div>
       </div>
 
-      <div className="mt-8 flex justify-center">
+      <div className="no-print mt-8 flex justify-center">
         <Link
           href="/menu"
           className="rounded-lg border border-border-strong px-6 py-3 font-semibold text-ink transition hover:bg-surface"

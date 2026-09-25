@@ -4,27 +4,27 @@ import {
   createContext,
   useCallback,
   useContext,
-  useMemo,
-  useSyncExternalStore,
+  useState,
   ReactNode,
 } from "react";
-import { Account } from "@/lib/types";
-import { accountsStore, sessionStore } from "@/lib/storage";
-import { generateId } from "@/lib/utils";
-import {
-  hashPassword,
-  isValidEmail,
-  normalizeEmail,
-  MIN_PASSWORD_LENGTH,
-} from "@/lib/auth";
+import { useRouter } from "next/navigation";
 
-/** What the caller gets back instead of a thrown error, so forms can render it. */
+/** The profile the server is willing to hand back — never the password hash. */
+export interface PublicAccount {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  address: string | null;
+  role: "CUSTOMER" | "STAFF" | "ADMIN";
+}
+
 export type AuthResult = { ok: true } | { ok: false; error: string };
 
 interface AuthContextValue {
-  account: Account | null;
-  /** The profile minus the password digest, which UI code never needs. */
+  account: PublicAccount | null;
   isSignedIn: boolean;
+  isStaff: boolean;
   signUp: (input: {
     name: string;
     email: string;
@@ -32,101 +32,108 @@ interface AuthContextValue {
     password: string;
   }) => Promise<AuthResult>;
   logIn: (input: { email: string; password: string }) => Promise<AuthResult>;
-  logOut: () => void;
-  updateProfile: (
-    patch: Partial<Pick<Account, "name" | "phone" | "address">>
-  ) => void;
+  logOut: () => Promise<void>;
+  updateProfile: (patch: {
+    name?: string;
+    phone?: string;
+    address?: string;
+  }) => Promise<AuthResult>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const accounts = useSyncExternalStore(
-    accountsStore.subscribe,
-    accountsStore.read,
-    accountsStore.getServerSnapshot
-  );
-  const sessionId = useSyncExternalStore(
-    sessionStore.subscribe,
-    sessionStore.read,
-    sessionStore.getServerSnapshot
-  );
+/**
+ * Auth state, backed by a server session.
+ *
+ * The signed-in account is resolved on the server and passed in as
+ * `initialAccount`, so there's no loading flicker and no fetch-on-mount. After
+ * any change we call router.refresh(), which re-runs the server components and
+ * feeds a fresh value back down — one source of truth rather than a client
+ * cache that can drift from the cookie.
+ */
+export function AuthProvider({
+  children,
+  initialAccount,
+}: {
+  children: ReactNode;
+  initialAccount: PublicAccount | null;
+}) {
+  const router = useRouter();
+  const [account, setAccount] = useState<PublicAccount | null>(initialAccount);
 
-  const account = useMemo(
-    () => accounts.find((a) => a.id === sessionId) ?? null,
-    [accounts, sessionId]
+  // Keep in step when the server sends a new value after a refresh.
+  const [seeded, setSeeded] = useState(initialAccount);
+  if (seeded !== initialAccount) {
+    setSeeded(initialAccount);
+    setAccount(initialAccount);
+  }
+
+  const post = useCallback(
+    async (url: string, body: unknown): Promise<AuthResult> => {
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+          return { ok: false, error: data.error || "Something went wrong." };
+        }
+
+        setAccount(data.account ?? null);
+        router.refresh();
+        return { ok: true };
+      } catch {
+        return { ok: false, error: "Network problem. Please try again." };
+      }
+    },
+    [router]
   );
 
   const signUp = useCallback<AuthContextValue["signUp"]>(
-    async ({ name, email, phone, password }) => {
-      const trimmedName = name.trim();
-      if (!trimmedName) return { ok: false, error: "Please enter your name." };
-      if (!isValidEmail(email))
-        return { ok: false, error: "Please enter a valid email address." };
-      if (password.length < MIN_PASSWORD_LENGTH)
-        return {
-          ok: false,
-          error: `Password must be at least ${MIN_PASSWORD_LENGTH} characters.`,
-        };
-
-      const normalized = normalizeEmail(email);
-      // Read through the store rather than the render-time snapshot, so two
-      // signups in the same tick can't both think the email is free.
-      if (accountsStore.read().some((a) => a.email === normalized))
-        return {
-          ok: false,
-          error: "An account with that email already exists.",
-        };
-
-      const newAccount: Account = {
-        id: generateId("ACC"),
-        name: trimmedName,
-        email: normalized,
-        phone: phone?.trim() || undefined,
-        passwordHash: await hashPassword(password),
-        createdAt: new Date().toISOString(),
-      };
-
-      accountsStore.add(newAccount);
-      sessionStore.write(newAccount.id);
-      return { ok: true };
-    },
-    []
+    (input) => post("/api/auth/signup", input),
+    [post]
   );
 
   const logIn = useCallback<AuthContextValue["logIn"]>(
-    async ({ email, password }) => {
-      const normalized = normalizeEmail(email);
-      const match = accountsStore.read().find((a) => a.email === normalized);
-      const digest = await hashPassword(password);
-
-      // Same message either way — telling someone which half was wrong tells
-      // them which emails are registered.
-      if (!match || match.passwordHash !== digest)
-        return { ok: false, error: "Email or password is incorrect." };
-
-      sessionStore.write(match.id);
-      return { ok: true };
-    },
-    []
+    (input) => post("/api/auth/login", input),
+    [post]
   );
 
-  const logOut = useCallback(() => sessionStore.write(null), []);
+  const logOut = useCallback(async () => {
+    await fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
+    setAccount(null);
+    router.refresh();
+  }, [router]);
 
   const updateProfile = useCallback<AuthContextValue["updateProfile"]>(
-    (patch) => {
-      const id = sessionStore.read();
-      if (!id) return;
-      accountsStore.update((list) =>
-        list.map((a) => (a.id === id ? { ...a, ...patch } : a))
-      );
+    async (patch) => {
+      try {
+        const res = await fetch("/api/auth/me", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(patch),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          return { ok: false, error: data.error || "Couldn't save that." };
+        }
+        setAccount(data.account ?? null);
+        router.refresh();
+        return { ok: true };
+      } catch {
+        return { ok: false, error: "Network problem. Please try again." };
+      }
     },
-    []
+    [router]
   );
 
   const value: AuthContextValue = {
     account,
     isSignedIn: account !== null,
+    isStaff: account?.role === "STAFF" || account?.role === "ADMIN",
     signUp,
     logIn,
     logOut,

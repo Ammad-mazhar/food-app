@@ -14,7 +14,8 @@
     "db:studio": "prisma studio",
     "db:seed": "tsx prisma/seed.ts",
     "postinstall": "prisma generate",
-    "db:check": "tsx prisma/check.ts"
+    "db:check": "tsx prisma/check.ts",
+    "db:staff": "tsx prisma/create-staff.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",

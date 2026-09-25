@@ -19,9 +19,13 @@ datasource db {
 
 // ---------------------------------------------------------------- accounts
 
+/// CUSTOMER orders. STAFF works the kitchen queue and today's bookings.
+/// ADMIN is STAFF plus the right to manage the menu and other accounts.
+/// Checks are written as "at least staff", so ADMIN passes anywhere STAFF does.
 enum Role {
   CUSTOMER
   STAFF
+  ADMIN
 }
 
 model Account {

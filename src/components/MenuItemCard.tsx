@@ -13,10 +13,15 @@ import { FlameIcon } from "@/components/icons";
 export default function MenuItemCard({
   item,
   priority = false,
+  initialFavourite = false,
+  soldOut = false,
 }: {
   item: MenuItem;
   /** Set on the cards in the first row so the LCP image isn't lazy-loaded. */
   priority?: boolean;
+  initialFavourite?: boolean;
+  /** Staff have taken this dish off today's menu. */
+  soldOut?: boolean;
 }) {
   const { addItem } = useCart();
   const [added, setAdded] = useState(false);
@@ -71,8 +76,20 @@ export default function MenuItemCard({
             }`}
             title={item.isVeg ? "Vegetarian" : "Non-vegetarian"}
           />
-          <FavoriteButton itemId={item.id} itemName={item.name} />
+          <FavoriteButton
+            itemId={item.id}
+            itemName={item.name}
+            initialFavourite={initialFavourite}
+          />
         </div>
+
+        {soldOut && (
+          <span className="absolute inset-0 flex items-center justify-center bg-black/55">
+            <span className="rounded-full border border-cream/40 bg-black/60 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-cream backdrop-blur-sm">
+              Sold out today
+            </span>
+          </span>
+        )}
       </Link>
 
       <div className="flex flex-1 flex-col p-4">
@@ -89,13 +106,16 @@ export default function MenuItemCard({
           </span>
           <button
             onClick={handleAdd}
+            disabled={soldOut}
             className={`rounded-lg px-3.5 py-1.5 text-sm font-semibold transition ${
-              added
-                ? "animate-pop bg-green-600 text-white"
-                : "bg-ember text-cream hover:scale-105 hover:bg-ember-soft active:scale-95"
+              soldOut
+                ? "cursor-not-allowed border border-border-strong text-faint"
+                : added
+                  ? "animate-pop bg-green-600 text-white"
+                  : "bg-ember text-cream hover:scale-105 hover:bg-ember-soft active:scale-95"
             }`}
           >
-            {added ? "Added ✓" : "Add to cart"}
+            {soldOut ? "Unavailable" : added ? "Added ✓" : "Add to cart"}
           </button>
         </div>
       </div>

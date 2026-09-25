@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getSessionAccount } from "@/lib/session";
+import { getSessionAccount, isStaff } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/utils";
 import AdminOrderQueue from "@/components/AdminOrderQueue";
@@ -15,7 +15,7 @@ import { UsersIcon } from "@/components/icons";
 export default async function AdminPage() {
   const account = await getSessionAccount();
 
-  if (!account || account.role !== "STAFF") {
+  if (!isStaff(account)) {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center px-4 py-24 text-center sm:px-6">
         <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-border-strong text-gold">

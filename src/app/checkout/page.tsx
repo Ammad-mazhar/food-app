@@ -4,10 +4,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
-import { formatPrice, generateId } from "@/lib/utils";
-import { saveOrder } from "@/lib/storage";
+import { formatPrice } from "@/lib/utils";
 import { Order, OrderType, PromoCode } from "@/lib/types";
-import { applyPromo, findPromo, pointsForOrderTotal } from "@/lib/data";
+import { applyPromo, pointsForOrderTotal } from "@/lib/data";
 import { TagIcon, CheckIcon } from "@/components/icons";
 import Link from "next/link";
 
@@ -58,8 +57,18 @@ export default function CheckoutPage() {
     );
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  /**
+   * Sends the order to the server, which is where it becomes real: the
+   * kitchen sees it in /admin and the customer gets a reference.
+   *
+   * Only dish ids and quantities go up. Every price, the discount, the tax and
+   * the total are recomputed server-side from the database — the figures shown
+   * below are a preview for the customer, not an instruction to the server.
+   */
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (submitting) return;
+
     if (!name.trim() || !phone.trim()) {
       setError("Please fill in your name and phone number.");
       return;
@@ -71,47 +80,79 @@ export default function CheckoutPage() {
     setError("");
     setSubmitting(true);
 
-    const order: Order = {
-      id: generateId("ORD"),
-      lines,
-      type: orderType,
-      status: "placed",
-      subtotal,
-      deliveryFee: chargedDelivery,
-      tax,
-      total: finalTotal,
-      placedAt: new Date().toISOString(),
-      address: orderType === "delivery" ? address : undefined,
-      phone,
-      customerName: name,
-      paymentMethod,
-      promoCode: promo && discount + (waivesDelivery ? deliveryFee : 0) > 0
-        ? promo.code
-        : undefined,
-      discount: discount > 0 ? discount : undefined,
-      pointsEarned: pointsForOrderTotal(finalTotal),
-    };
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: orderType === "delivery" ? "DELIVERY" : "PICKUP",
+          customerName: name.trim(),
+          phone: phone.trim(),
+          address: orderType === "delivery" ? address.trim() : undefined,
+          paymentMethod: paymentMethod.toUpperCase(),
+          promoCode: promo?.code,
+          lines: lines.map((line) => ({
+            menuItemId: line.item.id,
+            quantity: line.quantity,
+            notes: line.notes,
+          })),
+        }),
+      });
 
-    saveOrder(order);
-    clearCart();
-    router.push(`/orders/${order.id}`);
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setError(data.error || "We couldn't place that order. Please try again.");
+        setSubmitting(false);
+        return;
+      }
+
+      // Only clear the cart once the server has the order — a failed request
+      // must not lose someone's basket.
+      clearCart();
+
+      // Guests get a one-time token in the tracking link; signed-in customers
+      // are authorized by their session and don't need one.
+      const query = data.accessToken
+        ? `?token=${encodeURIComponent(data.accessToken)}`
+        : "";
+      router.push(`/orders/${data.order.reference}${query}`);
+    } catch {
+      setError("Network problem — your order was not placed.");
+      setSubmitting(false);
+    }
   }
 
-  function handleApplyPromo() {
-    const found = findPromo(promoInput);
-    if (!found) {
-      setPromoError("That code isn't recognised.");
-      return;
-    }
-    if (subtotal < found.minSubtotal) {
-      setPromoError(
-        `${found.code} needs a subtotal of at least ${formatPrice(found.minSubtotal)}.`
-      );
-      return;
-    }
+  /** Previews a code against the live promo table before checkout. */
+  async function handleApplyPromo() {
+    const code = promoInput.trim();
+    if (!code) return;
+
     setPromoError("");
-    setPromo(found);
-    setPromoInput("");
+    try {
+      const res = await fetch("/api/promo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, subtotal }),
+      });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || !data.valid) {
+        setPromoError(data.error || "That code can't be used right now.");
+        return;
+      }
+
+      setPromo({
+        code: data.code,
+        label: data.label,
+        kind: String(data.kind).toLowerCase() as PromoCode["kind"],
+        value: data.value,
+        minSubtotal: data.minSubtotal,
+      });
+      setPromoInput("");
+    } catch {
+      setPromoError("Couldn't check that code. Please try again.");
+    }
   }
 
   // Delivery is only charged on delivery orders, and a FREEDEL-style code

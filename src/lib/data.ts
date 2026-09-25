@@ -1,4 +1,4 @@
-import { MenuItem, RestaurantTable } from "./types";
+import { MenuItem, PromoCode, RestaurantTable } from "./types";
 
 // Dish names and descriptions are based on real, publicly documented menu
 // items for Texas Steak House (Rawalpindi). Prices were not publicly listed,
@@ -16,6 +16,8 @@ export const menuItems: MenuItem[] = [
     isVeg: true,
     isPopular: true,
     image: "/images/pexels-himanuuu-36989884.jpg",
+    allergens: ["Dairy", "Gluten"],
+    nutrition: { kcal: 620, protein: 18, carbs: 52, fat: 38 },
   },
   {
     id: "s2",
@@ -26,6 +28,8 @@ export const menuItems: MenuItem[] = [
     isVeg: true,
     isPopular: true,
     image: "/images/pexels-jack-baghel-2199968-20446381.jpg",
+    allergens: ["Gluten", "Dairy"],
+    nutrition: { kcal: 380, protein: 9, carbs: 44, fat: 18 },
   },
   {
     id: "s3",
@@ -35,6 +39,8 @@ export const menuItems: MenuItem[] = [
     category: "Starters",
     isVeg: true,
     image: "/images/pexels-visualstoriesbytugba-36425896.jpg",
+    allergens: ["Mustard"],
+    nutrition: { kcal: 180, protein: 6, carbs: 18, fat: 9 },
   },
   {
     id: "m1",
@@ -47,6 +53,8 @@ export const menuItems: MenuItem[] = [
     isSpicy: true,
     isPopular: true,
     image: "/images/pexels-madknoxxdeluxe-37923406.jpg",
+    allergens: [],
+    nutrition: { kcal: 720, protein: 58, carbs: 6, fat: 52 },
   },
   {
     id: "m2",
@@ -57,6 +65,8 @@ export const menuItems: MenuItem[] = [
     isVeg: false,
     isPopular: true,
     image: "/images/pexels-lunajoie-19285833.jpg",
+    allergens: [],
+    nutrition: { kcal: 680, protein: 55, carbs: 4, fat: 49 },
   },
   {
     id: "m3",
@@ -67,6 +77,8 @@ export const menuItems: MenuItem[] = [
     isVeg: false,
     isPopular: true,
     image: "/images/pexels-nosh-caterers-2148640437-30203310.jpg",
+    allergens: [],
+    nutrition: { kcal: 890, protein: 72, carbs: 14, fat: 60 },
   },
   {
     id: "m4",
@@ -76,6 +88,8 @@ export const menuItems: MenuItem[] = [
     category: "Main Course",
     isVeg: false,
     image: "/images/pexels-erwin-quintana-917658-7963208.jpg",
+    allergens: ["Gluten", "Egg", "Dairy"],
+    nutrition: { kcal: 840, protein: 46, carbs: 48, fat: 52 },
   },
   {
     id: "m5",
@@ -86,6 +100,8 @@ export const menuItems: MenuItem[] = [
     isVeg: false,
     isSpicy: true,
     image: "/images/pexels-drmkhawarnazir-34193415.jpg",
+    allergens: [],
+    nutrition: { kcal: 700, protein: 54, carbs: 10, fat: 48 },
   },
   {
     id: "m6",
@@ -95,6 +111,8 @@ export const menuItems: MenuItem[] = [
     category: "Main Course",
     isVeg: false,
     image: "/images/pexels-dhiraj-jain-207743066-12737805.jpg",
+    allergens: ["Dairy"],
+    nutrition: { kcal: 760, protein: 52, carbs: 12, fat: 55 },
   },
   {
     id: "b1",
@@ -106,6 +124,8 @@ export const menuItems: MenuItem[] = [
     isSpicy: true,
     isPopular: true,
     image: "/images/pexels-abdelilah-hibat-allah-1652683667-33408979.jpg",
+    allergens: ["Gluten", "Dairy", "Sesame"],
+    nutrition: { kcal: 820, protein: 42, carbs: 54, fat: 46 },
   },
   {
     id: "b2",
@@ -115,6 +135,8 @@ export const menuItems: MenuItem[] = [
     category: "Burgers & Sandwiches",
     isVeg: false,
     image: "/images/pexels-shameel-mukkath-3421394-5639696.jpg",
+    allergens: ["Gluten", "Egg", "Sesame"],
+    nutrition: { kcal: 780, protein: 38, carbs: 58, fat: 42 },
   },
   {
     id: "b3",
@@ -124,6 +146,8 @@ export const menuItems: MenuItem[] = [
     category: "Burgers & Sandwiches",
     isVeg: false,
     image: "/images/pexels-rajesh-tp-749235-1633525.jpg",
+    allergens: ["Gluten", "Egg"],
+    nutrition: { kcal: 590, protein: 32, carbs: 46, fat: 30 },
   },
   {
     id: "sd1",
@@ -134,6 +158,8 @@ export const menuItems: MenuItem[] = [
     isVeg: false,
     isPopular: true,
     image: "/images/pexels-kamrujjamanjewel-24866519.jpg",
+    allergens: ["Dairy"],
+    nutrition: { kcal: 520, protein: 40, carbs: 12, fat: 34 },
   },
   {
     id: "d1",
@@ -144,6 +170,8 @@ export const menuItems: MenuItem[] = [
     isVeg: true,
     isPopular: true,
     image: "/images/dessert5.jpg",
+    allergens: ["Gluten", "Dairy", "Egg"],
+    nutrition: { kcal: 450, protein: 8, carbs: 38, fat: 29 },
   },
   {
     id: "d2",
@@ -153,6 +181,8 @@ export const menuItems: MenuItem[] = [
     category: "Desserts",
     isVeg: true,
     image: "/images/dessert6.jpg",
+    allergens: ["Gluten", "Dairy", "Egg"],
+    nutrition: { kcal: 520, protein: 7, carbs: 58, fat: 28 },
   },
   {
     id: "v1",
@@ -162,6 +192,8 @@ export const menuItems: MenuItem[] = [
     category: "Beverages",
     isVeg: true,
     image: "/images/fresh lime soda.jpg",
+    allergens: [],
+    nutrition: { kcal: 90, protein: 0, carbs: 23, fat: 0 },
   },
   {
     id: "v2",
@@ -172,6 +204,8 @@ export const menuItems: MenuItem[] = [
     isVeg: true,
     isPopular: true,
     image: "/images/iced tea.jpg",
+    allergens: [],
+    nutrition: { kcal: 70, protein: 0, carbs: 18, fat: 0 },
   },
 ];
 
@@ -189,5 +223,66 @@ export const tables: RestaurantTable[] = [
   { id: "t7", label: "T7", seats: 10, location: "Private Room" },
 ];
 
-export const DELIVERY_FEE = 150;
-export const TAX_RATE = 0.05;
+/*
+ * Pricing rules now live in lib/pricing.ts so the server can share them. These
+ * re-exports keep the existing imports across the app working.
+ */
+export {
+  DELIVERY_FEE,
+  TAX_RATE,
+  LOYALTY_RUPEES_PER_POINT,
+  LOYALTY_POINTS_PER_REWARD,
+  LOYALTY_REWARD_VALUE,
+  pointsForOrderTotal,
+} from "./pricing";
+
+/**
+ * Promo codes accepted at checkout.
+ *
+ * ⚠️ These are demo codes with no server behind them — anyone can read them out
+ * of the JavaScript bundle, and nothing stops a code being reused forever.
+ * Before running a real promotion, move validation to the backend so codes can
+ * be issued, limited and revoked.
+ */
+export const promoCodes: PromoCode[] = [
+  {
+    code: "HOWDY10",
+    label: "10% off your order",
+    kind: "percent",
+    value: 10,
+    minSubtotal: 1000,
+  },
+  {
+    code: "SADDAR200",
+    label: "Rs. 200 off orders over Rs. 2,000",
+    kind: "fixed",
+    value: 200,
+    minSubtotal: 2000,
+  },
+  {
+    code: "FREEDEL",
+    label: "Free delivery",
+    kind: "delivery",
+    value: 0,
+    minSubtotal: 1500,
+  },
+];
+
+/** Returns the discount in rupees, plus whether delivery is waived. */
+export function applyPromo(
+  promo: PromoCode,
+  subtotal: number,
+  deliveryFee: number
+): { discount: number; waivesDelivery: boolean } {
+  if (subtotal < promo.minSubtotal) return { discount: 0, waivesDelivery: false };
+  if (promo.kind === "percent")
+    return { discount: Math.round((subtotal * promo.value) / 100), waivesDelivery: false };
+  if (promo.kind === "fixed")
+    return { discount: Math.min(promo.value, subtotal), waivesDelivery: false };
+  return { discount: 0, waivesDelivery: deliveryFee > 0 };
+}
+
+export function findPromo(code: string): PromoCode | undefined {
+  const normalized = code.trim().toUpperCase();
+  return promoCodes.find((p) => p.code === normalized);
+}

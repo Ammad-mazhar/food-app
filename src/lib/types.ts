@@ -6,6 +6,31 @@ export type MenuCategory =
   | "Desserts"
   | "Beverages";
 
+/**
+ * Allergens we surface on the dish page.
+ *
+ * ⚠️ These are indicative, derived from each dish's description — not a
+ * verified kitchen allergen matrix. The UI says so next to every list. Anyone
+ * with a real allergy must be told to confirm with staff; do not present this
+ * as authoritative until the kitchen has signed off on a proper matrix.
+ */
+export type Allergen =
+  | "Gluten"
+  | "Dairy"
+  | "Egg"
+  | "Soy"
+  | "Nuts"
+  | "Mustard"
+  | "Sesame";
+
+/** Rough per-serving figures. Estimates, labelled as such wherever shown. */
+export interface Nutrition {
+  kcal: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+}
+
 export interface MenuItem {
   id: string;
   name: string;
@@ -17,6 +42,29 @@ export interface MenuItem {
   isPopular?: boolean;
   /** Path under /public to a real photo for this dish. Falls back to illustrated art when absent. */
   image?: string;
+  allergens?: Allergen[];
+  nutrition?: Nutrition;
+}
+
+/** A diner's rating of one dish, stored on their own device. */
+export interface Review {
+  id: string;
+  itemId: string;
+  rating: number; // 1-5
+  author: string;
+  comment?: string;
+  createdAt: string;
+}
+
+export type PromoKind = "percent" | "fixed" | "delivery";
+
+export interface PromoCode {
+  code: string;
+  label: string;
+  kind: PromoKind;
+  /** Percent off, rupees off, or ignored for a free-delivery code. */
+  value: number;
+  minSubtotal: number;
 }
 
 export interface CartLine {
@@ -49,6 +97,11 @@ export interface Order {
   phone: string;
   customerName: string;
   paymentMethod: "cash" | "card" | "wallet";
+  /** Promo applied at checkout, kept so the receipt can show the saving. */
+  promoCode?: string;
+  discount?: number;
+  /** Loyalty points this order earned, frozen at the time it was placed. */
+  pointsEarned?: number;
 }
 
 /**

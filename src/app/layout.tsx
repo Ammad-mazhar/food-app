@@ -23,6 +23,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import RevealObserver from "@/components/RevealObserver";
 import FloatingHub from "@/components/FloatingHub";
+import SearchPalette from "@/components/SearchPalette";
+import ServiceWorker from "@/components/ServiceWorker";
 import { restaurantInfo, siteUrl } from "@/lib/restaurant";
 import { THEME_INIT_SCRIPT } from "@/lib/theme";
 
@@ -86,7 +88,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <main className="flex-1 pt-20">{children}</main>
             <Footer />
             <FloatingHub />
+            <SearchPalette />
             <RevealObserver />
+            <ServiceWorker />
           </CartProvider>
         </AuthProvider>
       </body>

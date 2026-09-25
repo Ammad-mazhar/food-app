@@ -1,0 +1,269 @@
+// Texas Steak House — data model.
+//
+// Postgres, hosted on Supabase. The connection URL is NOT in this file: Prisma 7
+// reads it from prisma7.config.ts, which pulls it out of the environment. No
+// credentials belong in here.
+//
+// Money is stored as whole rupees in Int columns. PKR has no minor unit in
+// practice, and integers avoid the rounding drift a float would introduce
+// across subtotal, discount, tax and total.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------- accounts
+
+enum Role {
+  CUSTOMER
+  STAFF
+}
+
+model Account {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  phone        String?
+  address      String?
+  /// bcrypt hash. A plaintext password is never stored or logged.
+  passwordHash String
+  role         Role     @default(CUSTOMER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  sessions     Session[]
+  orders       Order[]
+  reservations Reservation[]
+  reviews      Review[]
+  favourites   Favourite[]
+
+  @@index([email])
+}
+
+/// Server-side session. `id` is an opaque random token stored in an httpOnly
+/// cookie; deleting the row logs the visitor out everywhere, which a stateless
+/// JWT could not do.
+model Session {
+  id        String   @id
+  accountId String
+  account   Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([accountId])
+  @@index([expiresAt])
+}
+
+// ------------------------------------------------------------------- menu
+
+model MenuItem {
+  id          String   @id
+  name        String
+  description String
+  price       Int
+  category    String
+  isVeg       Boolean  @default(false)
+  isSpicy     Boolean  @default(false)
+  isPopular   Boolean  @default(false)
+  image       String?
+  /// Indicative, derived from the description — not a verified kitchen matrix.
+  allergens   String[] @default([])
+  kcal        Int?
+  protein     Int?
+  carbs       Int?
+  fat         Int?
+  /// Staff can flip this to take a dish off the menu without deleting it.
+  isAvailable Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  orderLines OrderLine[]
+  reviews    Review[]
+  favourites Favourite[]
+
+  @@index([category])
+}
+
+// ----------------------------------------------------------------- orders
+
+enum OrderStatus {
+  PLACED
+  CONFIRMED
+  PREPARING
+  OUT_FOR_DELIVERY
+  READY_FOR_PICKUP
+  COMPLETED
+  CANCELLED
+}
+
+enum OrderType {
+  DELIVERY
+  PICKUP
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  WALLET
+}
+
+model Order {
+  id        String @id @default(cuid())
+  /// Short human-facing code read out over the phone, e.g. "TSH-7K2MPQRS".
+  /// An identifier, not a secret — see accessToken.
+  reference String @unique
+
+  /// Null for guest checkout — an order must not require an account.
+  accountId String?
+  account   Account? @relation(fields: [accountId], references: [id], onDelete: SetNull)
+
+  /// 128-bit secret, set only for guest orders, that lets the person who
+  /// placed one open it without an account. Orders owned by an account are
+  /// authorized by the session instead, so this stays null for them.
+  accessToken String? @unique
+
+  status        OrderStatus   @default(PLACED)
+  type          OrderType
+  customerName  String
+  phone         String
+  address       String?
+  paymentMethod PaymentMethod @default(CASH)
+
+  subtotal     Int
+  discount     Int     @default(0)
+  promoCode    String?
+  deliveryFee  Int     @default(0)
+  tax          Int
+  total        Int
+  pointsEarned Int     @default(0)
+
+  placedAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lines OrderLine[]
+
+  @@index([status, placedAt])
+  @@index([accountId])
+}
+
+/// A line is a snapshot: name and price are copied at the time of the order so
+/// a later menu price change can never rewrite somebody's receipt.
+model OrderLine {
+  id      String @id @default(cuid())
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  menuItemId String?
+  menuItem   MenuItem? @relation(fields: [menuItemId], references: [id], onDelete: SetNull)
+
+  name     String
+  price    Int
+  quantity Int
+  notes    String?
+
+  @@index([orderId])
+}
+
+// ----------------------------------------------------------- reservations
+
+enum ReservationStatus {
+  REQUESTED
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+model RestaurantTable {
+  id       String @id
+  label    String
+  seats    Int
+  location String
+
+  reservations Reservation[]
+}
+
+model Reservation {
+  id        String @id @default(cuid())
+  reference String @unique
+
+  accountId String?
+  account   Account? @relation(fields: [accountId], references: [id], onDelete: SetNull)
+
+  tableId String?
+  table   RestaurantTable? @relation(fields: [tableId], references: [id], onDelete: SetNull)
+
+  name      String
+  phone     String
+  /// Date only; the time of day is kept separately as "HH:mm" so a slot is
+  /// compared as a string rather than across timezones.
+  date      DateTime @db.Date
+  time      String
+  partySize Int
+  notes     String?
+  status    ReservationStatus @default(REQUESTED)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  /// The database refuses a double-booking rather than trusting the app to
+  /// check first — two requests racing for the same slot cannot both win.
+  @@unique([tableId, date, time], name: "table_slot")
+  @@index([date, status])
+}
+
+// --------------------------------------------------------- reviews & likes
+
+model Review {
+  id         String   @id @default(cuid())
+  menuItemId String
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  accountId String?
+  account   Account? @relation(fields: [accountId], references: [id], onDelete: SetNull)
+
+  author    String
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  @@index([menuItemId])
+}
+
+model Favourite {
+  accountId  String
+  account    Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  menuItemId String
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@id([accountId, menuItemId])
+}
+
+// ------------------------------------------------------------ promotions
+
+enum PromoKind {
+  PERCENT
+  FIXED
+  DELIVERY
+}
+
+/// Server-held promo codes. Unlike the client-side list this replaces, these
+/// can be deactivated, expired and usage-capped.
+model PromoCode {
+  code        String    @id
+  label       String
+  kind        PromoKind
+  value       Int
+  minSubtotal Int       @default(0)
+  isActive    Boolean   @default(true)
+  usageLimit  Int?
+  usedCount   Int       @default(0)
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+}

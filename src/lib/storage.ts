@@ -1,6 +1,6 @@
 "use client";
 
-import { Account, Order, Reservation } from "./types";
+import { Account, Order, Reservation, Review } from "./types";
 
 const ORDERS_KEY = "food-app:orders";
 const ORDERS_EVENT = "food-app:orders-changed";
@@ -149,5 +149,61 @@ export function updateReservationStatus(
 ): void {
   reservationsStore.update((list) =>
     list.map((res) => (res.id === id ? { ...res, status } : res))
+  );
+}
+
+/* ---------------------------------------------------------------- *
+ * Favourites, reviews and recently-viewed.
+ *
+ * All three are per-device: they never leave this browser, so a diner
+ * who switches phones starts fresh, and reviews are visible only to
+ * their author. When these move to Supabase, swap the bodies below —
+ * every caller goes through these functions, not localStorage.
+ * ---------------------------------------------------------------- */
+
+const FAVOURITES_KEY = "food-app:favourites";
+const FAVOURITES_EVENT = "food-app:favourites-changed";
+const REVIEWS_KEY = "food-app:reviews";
+const REVIEWS_EVENT = "food-app:reviews-changed";
+const RECENT_KEY = "food-app:recently-viewed";
+const RECENT_EVENT = "food-app:recently-viewed-changed";
+
+/** Menu item ids the visitor has hearted. */
+export const favouritesStore = createListStore<string>(
+  FAVOURITES_KEY,
+  FAVOURITES_EVENT
+);
+export const reviewsStore = createListStore<Review>(REVIEWS_KEY, REVIEWS_EVENT);
+export const recentlyViewedStore = createListStore<string>(
+  RECENT_KEY,
+  RECENT_EVENT
+);
+
+export function isFavourite(id: string): boolean {
+  return favouritesStore.read().includes(id);
+}
+
+export function toggleFavourite(id: string): void {
+  favouritesStore.update((ids) =>
+    ids.includes(id) ? ids.filter((x) => x !== id) : [id, ...ids]
+  );
+}
+
+export function saveReview(review: Review): void {
+  reviewsStore.add(review);
+}
+
+export function deleteReview(id: string): void {
+  reviewsStore.update((list) => list.filter((r) => r.id !== id));
+}
+
+const RECENT_LIMIT = 8;
+
+/** Moves an id to the front, de-duplicated, capped at RECENT_LIMIT. */
+export function recordRecentlyViewed(id: string): void {
+  const current = recentlyViewedStore.read();
+  if (current[0] === id) return; // already the most recent — don't churn storage
+  recentlyViewedStore.write(
+    [id, ...current.filter((x) => x !== id)].slice(0, RECENT_LIMIT)
   );
 }

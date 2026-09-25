@@ -7,6 +7,7 @@ import { Order } from "@/lib/types";
 import { ordersStore } from "@/lib/storage";
 import { formatPrice } from "@/lib/utils";
 import OrderActions from "@/components/OrderActions";
+import PrintReceiptButton from "@/components/PrintReceiptButton";
 
 const statusSteps: Order["status"][] = [
   "placed",
@@ -100,8 +101,9 @@ export default function OrderDetailPage() {
         </div>
       )}
 
-      <div className="mb-8 flex justify-center">
+      <div className="no-print mb-8 flex flex-wrap items-center justify-center gap-2">
         <OrderActions order={order} layout="stack" />
+        <PrintReceiptButton />
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2">
@@ -167,6 +169,14 @@ export default function OrderDetailPage() {
                 <span className="text-ink">
                   {formatPrice(order.deliveryFee)}
                 </span>
+              </div>
+            )}
+            {order.discount != null && order.discount > 0 && (
+              <div className="flex justify-between text-gold">
+                <span>
+                  Discount{order.promoCode ? ` (${order.promoCode})` : ""}
+                </span>
+                <span>−{formatPrice(order.discount)}</span>
               </div>
             )}
             <div className="flex justify-between">

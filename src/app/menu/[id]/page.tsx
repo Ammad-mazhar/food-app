@@ -8,6 +8,12 @@ import { formatPrice } from "@/lib/utils";
 import DishArt from "@/components/DishArt";
 import MenuItemCard from "@/components/MenuItemCard";
 import AddToCartPanel from "@/components/AddToCartPanel";
+import FavoriteButton from "@/components/FavoriteButton";
+import ShareButton from "@/components/ShareButton";
+import DishReviews from "@/components/DishReviews";
+import RecentlyViewed, {
+  TrackRecentlyViewed,
+} from "@/components/RecentlyViewed";
 import { FlameIcon, LeafIcon, ClockIcon, PinIcon } from "@/components/icons";
 
 /** Prerender every dish page at build time — the menu is a fixed list. */
@@ -96,9 +102,19 @@ export default async function DishPage({ params }: PageProps<"/menu/[id]">) {
             </span>
           </div>
 
-          <h1 className="font-display text-3xl font-bold text-ink sm:text-4xl">
-            {item.name}
-          </h1>
+          <div className="flex items-start justify-between gap-4">
+            <h1 className="font-display text-3xl font-bold text-ink sm:text-4xl">
+              {item.name}
+            </h1>
+            <div className="flex shrink-0 gap-2">
+              <FavoriteButton
+                itemId={item.id}
+                itemName={item.name}
+                variant="inline"
+              />
+              <ShareButton title={item.name} text={item.description} />
+            </div>
+          </div>
           <p className="mt-3 text-muted">{item.description}</p>
 
           <p className="mt-6 font-display text-3xl font-bold text-gold-soft">
@@ -110,6 +126,68 @@ export default async function DishPage({ params }: PageProps<"/menu/[id]">) {
           </p>
 
           <AddToCartPanel item={item} />
+
+          {(item.allergens || item.nutrition) && (
+            <div className="mt-8 grid gap-4 border-t border-border pt-6 sm:grid-cols-2">
+              {item.allergens && (
+                <div>
+                  <h2 className="text-sm font-semibold text-ink">Allergens</h2>
+                  {item.allergens.length > 0 ? (
+                    <ul className="mt-2 flex flex-wrap gap-1.5">
+                      {item.allergens.map((a) => (
+                        <li
+                          key={a}
+                          className="rounded-full border border-border-strong px-2.5 py-0.5 text-xs font-medium text-ink"
+                        >
+                          {a}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="mt-2 text-sm text-muted">
+                      None of the common allergens.
+                    </p>
+                  )}
+                  <p className="mt-2 text-xs text-faint">
+                    Indicative only. If you have an allergy, please tell your
+                    server — they will check with the kitchen.
+                  </p>
+                </div>
+              )}
+
+              {item.nutrition && (
+                <div>
+                  <h2 className="text-sm font-semibold text-ink">
+                    Per serving
+                  </h2>
+                  <dl className="mt-2 grid grid-cols-4 gap-2 text-center">
+                    {[
+                      { label: "kcal", value: item.nutrition.kcal },
+                      { label: "Protein", value: `${item.nutrition.protein}g` },
+                      { label: "Carbs", value: `${item.nutrition.carbs}g` },
+                      { label: "Fat", value: `${item.nutrition.fat}g` },
+                    ].map((row) => (
+                      <div
+                        key={row.label}
+                        className="rounded-lg border border-border bg-surface px-1 py-2"
+                      >
+                        <dt className="sr-only">{row.label}</dt>
+                        <dd className="font-display text-base font-bold text-ink">
+                          {row.value}
+                        </dd>
+                        <p className="text-[10px] uppercase tracking-wide text-faint">
+                          {row.label}
+                        </p>
+                      </div>
+                    ))}
+                  </dl>
+                  <p className="mt-2 text-xs text-faint">
+                    Estimated figures, not lab-tested.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
 
           <dl className="mt-8 flex flex-col gap-3 border-t border-border pt-6 text-sm">
             <div className="flex items-start gap-3">
@@ -133,6 +211,12 @@ export default async function DishPage({ params }: PageProps<"/menu/[id]">) {
           </dl>
         </div>
       </div>
+
+      <TrackRecentlyViewed itemId={item.id} />
+
+      <DishReviews itemId={item.id} itemName={item.name} />
+
+      <RecentlyViewed excludeId={item.id} />
 
       {related.length > 0 && (
         <section className="mt-16">

@@ -5,7 +5,12 @@ import { useState, useSyncExternalStore } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { ordersStore, reservationsStore } from "@/lib/storage";
 import { formatPrice } from "@/lib/utils";
-import { UsersIcon, CheckIcon } from "@/components/icons";
+import {
+  pointsForOrderTotal,
+  LOYALTY_POINTS_PER_REWARD,
+  LOYALTY_REWARD_VALUE,
+} from "@/lib/data";
+import { UsersIcon, CheckIcon, SparkleIcon } from "@/components/icons";
 
 export default function AccountPage() {
   const { account, isSignedIn, logOut, updateProfile } = useAuth();
@@ -109,9 +114,16 @@ export default function AccountPage() {
     );
   }
 
-  const spent = orders
-    .filter((o) => o.status !== "cancelled")
-    .reduce((sum, o) => sum + o.total, 0);
+  const earning = orders.filter((o) => o.status !== "cancelled");
+  const spent = earning.reduce((sum, o) => sum + o.total, 0);
+  // Orders placed before loyalty existed have no stored figure, so fall back
+  // to recomputing from their total rather than showing them as worth nothing.
+  const points = earning.reduce(
+    (sum, o) => sum + (o.pointsEarned ?? pointsForOrderTotal(o.total)),
+    0
+  );
+  const rewards = Math.floor(points / LOYALTY_POINTS_PER_REWARD);
+  const toNextReward = LOYALTY_POINTS_PER_REWARD - (points % LOYALTY_POINTS_PER_REWARD);
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
@@ -158,6 +170,50 @@ export default function AccountPage() {
             <p className="mt-1 text-xs text-muted">{stat.label}</p>
           </div>
         ))}
+      </div>
+
+      {/* Loyalty */}
+      <div className="mt-6 rounded-2xl border border-gold/40 bg-gold/5 p-6">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <span className="flex h-11 w-11 items-center justify-center rounded-full border border-gold/50 text-gold">
+              <SparkleIcon className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="font-display text-2xl font-bold text-ink">
+                {points} {points === 1 ? "point" : "points"}
+              </p>
+              <p className="text-sm text-muted">
+                {rewards > 0
+                  ? `Worth ${formatPrice(rewards * LOYALTY_REWARD_VALUE)} off your next order.`
+                  : `${toNextReward} more for ${formatPrice(LOYALTY_REWARD_VALUE)} off.`}
+              </p>
+            </div>
+          </div>
+          <p className="text-xs text-faint">
+            1 point per Rs. 100 spent
+          </p>
+        </div>
+
+        <div
+          className="mt-4 h-2 overflow-hidden rounded-full bg-bg-elevated"
+          role="progressbar"
+          aria-valuenow={points % LOYALTY_POINTS_PER_REWARD}
+          aria-valuemin={0}
+          aria-valuemax={LOYALTY_POINTS_PER_REWARD}
+          aria-label="Progress to next reward"
+        >
+          <div
+            className="h-full rounded-full bg-gold transition-all"
+            style={{
+              width: `${((points % LOYALTY_POINTS_PER_REWARD) / LOYALTY_POINTS_PER_REWARD) * 100}%`,
+            }}
+          />
+        </div>
+        <p className="mt-3 text-xs text-faint">
+          Points are tracked on this device and can&apos;t be redeemed at the
+          till yet — that needs the backend.
+        </p>
       </div>
 
       <div className="mt-6 rounded-2xl border border-border bg-surface p-6">

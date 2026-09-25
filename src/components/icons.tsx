@@ -281,6 +281,97 @@ export function ThermometerIcon({ className = "h-5 w-5" }: IconProps) {
   );
 }
 
+/** Outline heart, or solid when `filled` — the favourites toggle. */
+export function HeartIcon({
+  className = "h-5 w-5",
+  filled = false,
+}: IconProps & { filled?: boolean }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill={filled ? "currentColor" : "none"}
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M12 20s-7.3-4.4-9.2-8.4A5 5 0 0112 5.6a5 5 0 019.2 6C19.3 15.6 12 20 12 20z" />
+    </svg>
+  );
+}
+
+export function SearchIcon({ className = "h-5 w-5" }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <circle cx="11" cy="11" r="7" />
+      <path d="M16.5 16.5L21 21" />
+    </svg>
+  );
+}
+
+export function ShareIcon({ className = "h-5 w-5" }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <circle cx="18" cy="5" r="2.6" />
+      <circle cx="6" cy="12" r="2.6" />
+      <circle cx="18" cy="19" r="2.6" />
+      <path d="M8.3 10.8l7.4-4.3M8.3 13.2l7.4 4.3" />
+    </svg>
+  );
+}
+
+export function PrinterIcon({ className = "h-5 w-5" }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M7 9V3h10v6" />
+      <rect x="3" y="9" width="18" height="7" rx="2" />
+      <path d="M7 14h10v7H7z" />
+    </svg>
+  );
+}
+
+export function TagIcon({ className = "h-5 w-5" }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M11 3H3v8l10 10 8-8L11 3z" />
+      <circle cx="7" cy="7" r="1.4" />
+    </svg>
+  );
+}
+
 export function SunIcon({ className = "h-5 w-5" }: IconProps) {
   return (
     <svg

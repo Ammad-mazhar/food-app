@@ -157,6 +157,39 @@ body {
   background-image: none;
 }
 
+/*
+ * Print. Used for the order receipt: drop the site chrome and anything
+ * interactive, force ink on white so a themed page doesn't burn a cartridge,
+ * and let content break naturally across sheets.
+ */
+@media print {
+  nav,
+  header,
+  footer,
+  video,
+  .no-print {
+    display: none !important;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  main {
+    padding-top: 0 !important;
+  }
+
+  a[href]::after {
+    content: "";
+  }
+
+  * {
+    box-shadow: none !important;
+  }
+}
+
 /* Vertical companion to .rule-rope, for framing a wide section's gutters. */
 .rule-rope-v {
   width: 5px;

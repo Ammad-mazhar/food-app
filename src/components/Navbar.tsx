@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { restaurantInfo } from "@/lib/restaurant";
-import { FlameIcon } from "@/components/icons";
+import { FlameIcon, SearchIcon } from "@/components/icons";
 import ThemeToggle from "@/components/ThemeToggle";
 
 const links = [
@@ -15,6 +15,7 @@ const links = [
   { href: "/book-table", label: "Book a Table" },
   { href: "/orders", label: "My Orders" },
   { href: "/reservations", label: "My Reservations" },
+  { href: "/favourites", label: "Favourites" },
 ];
 
 export default function Navbar() {
@@ -106,6 +107,21 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() =>
+              window.dispatchEvent(new Event("food-app:open-search"))
+            }
+            aria-label="Search dishes and pages"
+            title="Search (Ctrl+K)"
+            className={`flex h-9 w-9 items-center justify-center rounded-full border transition hover:scale-110 ${
+              solid
+                ? "border-border-strong text-ink hover:border-gold hover:text-gold"
+                : "border-cream/40 bg-black/25 text-cream backdrop-blur-sm hover:border-on-dark-accent hover:text-on-dark-accent"
+            }`}
+          >
+            <SearchIcon className="h-4.5 w-4.5" />
+          </button>
           <ThemeToggle solid={solid} />
           <Link
             href="/account"

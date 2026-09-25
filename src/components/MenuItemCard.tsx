@@ -7,6 +7,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import DishArt from "@/components/DishArt";
+import FavoriteButton from "@/components/FavoriteButton";
 import { FlameIcon } from "@/components/icons";
 
 export default function MenuItemCard({
@@ -63,12 +64,15 @@ export default function MenuItemCard({
           )}
         </div>
 
-        <span
-          className={`absolute right-3 top-3 h-2.5 w-2.5 rounded-full ring-2 ring-bg ${
-            item.isVeg ? "bg-green-500" : "bg-ember"
-          }`}
-          title={item.isVeg ? "Vegetarian" : "Non-vegetarian"}
-        />
+        <div className="absolute right-3 top-3 flex items-center gap-2">
+          <span
+            className={`h-2.5 w-2.5 rounded-full ring-2 ring-bg ${
+              item.isVeg ? "bg-green-500" : "bg-ember"
+            }`}
+            title={item.isVeg ? "Vegetarian" : "Non-vegetarian"}
+          />
+          <FavoriteButton itemId={item.id} itemName={item.name} />
+        </div>
       </Link>
 
       <div className="flex flex-1 flex-col p-4">

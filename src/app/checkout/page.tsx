@@ -6,12 +6,16 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { formatPrice, generateId } from "@/lib/utils";
 import { saveOrder } from "@/lib/storage";
-import { Order, OrderType } from "@/lib/types";
+import { Order, OrderType, PromoCode } from "@/lib/types";
+import { applyPromo, findPromo, pointsForOrderTotal } from "@/lib/data";
+import { TagIcon, CheckIcon } from "@/components/icons";
 import Link from "next/link";
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { lines, subtotal, deliveryFee, tax, total, clearCart } = useCart();
+  // `total` from the cart is deliberately unused — checkout recomputes it
+  // below once order type and any promo code are known.
+  const { lines, subtotal, deliveryFee, tax, clearCart } = useCart();
 
   const [orderType, setOrderType] = useState<OrderType>("delivery");
   const [name, setName] = useState("");
@@ -21,6 +25,10 @@ export default function CheckoutPage() {
     useState<Order["paymentMethod"]>("cash");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+
+  const [promoInput, setPromoInput] = useState("");
+  const [promo, setPromo] = useState<PromoCode | null>(null);
+  const [promoError, setPromoError] = useState("");
 
   // Fill the form from the signed-in profile once per account, adjusted during
   // render so it lands before first paint and never clobbers later typing.
@@ -69,14 +77,19 @@ export default function CheckoutPage() {
       type: orderType,
       status: "placed",
       subtotal,
-      deliveryFee: orderType === "delivery" ? deliveryFee : 0,
+      deliveryFee: chargedDelivery,
       tax,
-      total: orderType === "delivery" ? total : subtotal + tax,
+      total: finalTotal,
       placedAt: new Date().toISOString(),
       address: orderType === "delivery" ? address : undefined,
       phone,
       customerName: name,
       paymentMethod,
+      promoCode: promo && discount + (waivesDelivery ? deliveryFee : 0) > 0
+        ? promo.code
+        : undefined,
+      discount: discount > 0 ? discount : undefined,
+      pointsEarned: pointsForOrderTotal(finalTotal),
     };
 
     saveOrder(order);
@@ -84,7 +97,32 @@ export default function CheckoutPage() {
     router.push(`/orders/${order.id}`);
   }
 
-  const finalTotal = orderType === "delivery" ? total : subtotal + tax;
+  function handleApplyPromo() {
+    const found = findPromo(promoInput);
+    if (!found) {
+      setPromoError("That code isn't recognised.");
+      return;
+    }
+    if (subtotal < found.minSubtotal) {
+      setPromoError(
+        `${found.code} needs a subtotal of at least ${formatPrice(found.minSubtotal)}.`
+      );
+      return;
+    }
+    setPromoError("");
+    setPromo(found);
+    setPromoInput("");
+  }
+
+  // Delivery is only charged on delivery orders, and a FREEDEL-style code
+  // waives it. Percent and fixed codes come off the subtotal instead.
+  const baseDelivery = orderType === "delivery" ? deliveryFee : 0;
+  const { discount, waivesDelivery } = promo
+    ? applyPromo(promo, subtotal, baseDelivery)
+    : { discount: 0, waivesDelivery: false };
+  const chargedDelivery = waivesDelivery ? 0 : baseDelivery;
+  // Clamp at zero so a large fixed discount can never produce a negative bill.
+  const finalTotal = Math.max(0, subtotal - discount + chargedDelivery + tax);
 
   const inputClass =
     "rounded-lg border border-border-strong bg-field px-4 py-2 text-sm text-ink placeholder:text-faint focus:border-gold focus:outline-none";
@@ -258,15 +296,91 @@ export default function CheckoutPage() {
               </li>
             ))}
           </ul>
-          <div className="space-y-2 border-t border-border pt-3 text-sm">
+          {/* Promo code */}
+          <div className="border-t border-border pt-3">
+            {promo ? (
+              <div className="flex items-center justify-between gap-3 rounded-lg border border-gold/40 bg-gold/10 px-3 py-2">
+                <span className="flex min-w-0 items-center gap-2 text-sm">
+                  <CheckIcon className="h-4 w-4 shrink-0 text-gold" />
+                  <span className="min-w-0">
+                    <span className="block font-semibold text-ink">
+                      {promo.code}
+                    </span>
+                    <span className="block truncate text-xs text-muted">
+                      {promo.label}
+                    </span>
+                  </span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setPromo(null)}
+                  className="shrink-0 text-xs font-semibold text-faint transition hover:text-ember"
+                >
+                  Remove
+                </button>
+              </div>
+            ) : (
+              <div>
+                <label
+                  htmlFor="promo"
+                  className="mb-1 flex items-center gap-1.5 text-sm font-medium text-ink"
+                >
+                  <TagIcon className="h-4 w-4 text-gold" />
+                  Promo code
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    id="promo"
+                    value={promoInput}
+                    onChange={(e) => setPromoInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      // Enter here must not submit the whole order.
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleApplyPromo();
+                      }
+                    }}
+                    placeholder="HOWDY10"
+                    className="w-full rounded-lg border border-border-strong bg-field px-3 py-2 text-sm uppercase text-ink placeholder:text-faint placeholder:normal-case focus:border-gold focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleApplyPromo}
+                    className="shrink-0 rounded-lg border border-border-strong px-4 text-sm font-semibold text-ink transition hover:bg-surface-hover"
+                  >
+                    Apply
+                  </button>
+                </div>
+                {promoError && (
+                  <p role="alert" className="mt-1.5 text-xs text-ember">
+                    {promoError}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="mt-4 space-y-2 border-t border-border pt-3 text-sm">
             <div className="flex justify-between">
               <span className="text-muted">Subtotal</span>
               <span className="text-ink">{formatPrice(subtotal)}</span>
             </div>
+            {discount > 0 && (
+              <div className="flex justify-between text-gold">
+                <span>Discount ({promo?.code})</span>
+                <span>−{formatPrice(discount)}</span>
+              </div>
+            )}
             {orderType === "delivery" && (
               <div className="flex justify-between">
                 <span className="text-muted">Delivery Fee</span>
-                <span className="text-ink">{formatPrice(deliveryFee)}</span>
+                {waivesDelivery ? (
+                  <span className="text-gold">
+                    <s className="text-faint">{formatPrice(deliveryFee)}</s> Free
+                  </span>
+                ) : (
+                  <span className="text-ink">{formatPrice(chargedDelivery)}</span>
+                )}
               </div>
             )}
             <div className="flex justify-between">
@@ -277,6 +391,9 @@ export default function CheckoutPage() {
               <span>Total</span>
               <span>{formatPrice(finalTotal)}</span>
             </div>
+            <p className="pt-1 text-xs text-faint">
+              Earns {pointsForOrderTotal(finalTotal)} loyalty points.
+            </p>
           </div>
           <button
             type="submit"

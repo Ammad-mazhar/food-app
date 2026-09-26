@@ -11,7 +11,17 @@
 # it must be regenerated on the build machine. `postinstall` in package.json
 # already runs `prisma generate`; this makes the dependency explicit for anyone
 # reading the config.
-  environment = { NODE_VERSION = "22" }
+#
+# SECRETS_SCAN_OMIT_PATHS covers Turbopack's persistent cache. Turbopack records
+# the env vars a build read so it can invalidate compiled output when one
+# changes, which writes SESSION_SECRET into .netlify/.next/cache/turbopack/*.sst
+# and fails the secrets scan on every build. That directory is build-time only —
+# it is never uploaded to the CDN, bundled into a function, or served.
+#
+# Scoped to that one path on purpose. SECRETS_SCAN_OMIT_KEYS or
+# SECRETS_SCAN_ENABLED=false would also silence the scan over real deployed
+# output, and the scan has already caught one genuinely broken secret here.
+  environment = { NODE_VERSION = "22", SECRETS_SCAN_OMIT_PATHS = ".netlify/.next/cache/**" }
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"

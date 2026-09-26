@@ -42,6 +42,12 @@ yarn-error.log*
 # vercel
 .vercel
 
+# netlify — local build output and, critically, the Turbopack persistent cache.
+# That cache records the env vars a build read (so it knows when to invalidate),
+# which means SESSION_SECRET and the database URLs end up inside it verbatim.
+# Committing it would publish them.
+.netlify/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

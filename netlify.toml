@@ -1,0 +1,40 @@
+# Netlify build configuration.
+#
+# The Next.js runtime plugin handles routing, server components and the API
+# routes — there is no `publish` directory to set by hand for an app that is
+# mostly server-rendered.
+
+[build]
+  command = "npm run build"
+
+# Prisma's generated client is gitignored (it is build output, not source), so
+# it must be regenerated on the build machine. `postinstall` in package.json
+# already runs `prisma generate`; this makes the dependency explicit for anyone
+# reading the config.
+  environment = { NODE_VERSION = "22" }
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Never let a preview deploy be indexed — it would compete with the real site
+# in search results and expose work in progress.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "SAMEORIGIN"
+
+[context.deploy-preview]
+  [context.deploy-preview.environment]
+    NEXT_PUBLIC_SITE_URL = ""
+
+[[context.deploy-preview.headers]]
+  for = "/*"
+  [context.deploy-preview.headers.values]
+    X-Robots-Tag = "noindex"
+
+[[context.branch-deploy.headers]]
+  for = "/*"
+  [context.branch-deploy.headers.values]
+    X-Robots-Tag = "noindex"

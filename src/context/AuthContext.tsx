@@ -54,9 +54,11 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
  * is resolved here instead, from /api/auth/me on mount, so the pages that carry
  * no per-visitor data can be cached and served from the CDN.
  *
- * `isLoading` exists so the navbar can tell "nobody is signed in" apart from
- * "we don't know yet" and avoid showing a Log In button to someone who is
- * already logged in.
+ * `isLoading` distinguishes "nobody is signed in" from "we don't know yet".
+ * Nothing consumes it today — the navbar degrades to "Account" either way, and
+ * /login should show its form immediately because most visitors there really
+ * are logged out. It is here because any consumer that renders differently for
+ * guests will otherwise flash the wrong state for one paint.
  */
 export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();

@@ -29,6 +29,20 @@ export default function FavoriteButton({
   const [needsLogin, setNeedsLogin] = useState(false);
   const [busy, setBusy] = useState(false);
 
+  /*
+   * initialFavourite now arrives AFTER mount: the menu page is cached, so
+   * MenuBrowser fetches favourites in the browser instead of receiving them in
+   * shared HTML. Seeding state once would leave every heart empty.
+   *
+   * Only reacts when the incoming value actually changes, so it can't clobber
+   * an optimistic toggle. Same render-phase sync used in AuthContext.
+   */
+  const [seeded, setSeeded] = useState(initialFavourite);
+  if (seeded !== initialFavourite) {
+    setSeeded(initialFavourite);
+    setIsFav(initialFavourite);
+  }
+
   async function toggle(e: React.MouseEvent) {
     // Cards wrap their image in a link; without this the heart would navigate
     // to the dish instead of toggling.

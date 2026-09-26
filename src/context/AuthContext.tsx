@@ -4,6 +4,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useState,
   ReactNode,
 } from "react";
@@ -25,6 +26,8 @@ interface AuthContextValue {
   account: PublicAccount | null;
   isSignedIn: boolean;
   isStaff: boolean;
+  /** True until /api/auth/me answers, so callers can avoid guessing wrong. */
+  isLoading: boolean;
   signUp: (input: {
     name: string;
     email: string;
@@ -45,28 +48,41 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 /**
  * Auth state, backed by a server session.
  *
- * The signed-in account is resolved on the server and passed in as
- * `initialAccount`, so there's no loading flicker and no fetch-on-mount. After
- * any change we call router.refresh(), which re-runs the server components and
- * feeds a fresh value back down — one source of truth rather than a client
- * cache that can drift from the cookie.
+ * The session used to be resolved in the root layout and handed down as
+ * `initialAccount`, which gave a flicker-free first paint at the cost of making
+ * every route in the app dynamic — see the long note in src/app/layout.tsx. It
+ * is resolved here instead, from /api/auth/me on mount, so the pages that carry
+ * no per-visitor data can be cached and served from the CDN.
+ *
+ * `isLoading` exists so the navbar can tell "nobody is signed in" apart from
+ * "we don't know yet" and avoid showing a Log In button to someone who is
+ * already logged in.
  */
-export function AuthProvider({
-  children,
-  initialAccount,
-}: {
-  children: ReactNode;
-  initialAccount: PublicAccount | null;
-}) {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
-  const [account, setAccount] = useState<PublicAccount | null>(initialAccount);
+  const [account, setAccount] = useState<PublicAccount | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Keep in step when the server sends a new value after a refresh.
-  const [seeded, setSeeded] = useState(initialAccount);
-  if (seeded !== initialAccount) {
-    setSeeded(initialAccount);
-    setAccount(initialAccount);
-  }
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const res = await fetch("/api/auth/me");
+        const data = res.ok ? await res.json().catch(() => ({})) : {};
+        if (!cancelled) setAccount(data.account ?? null);
+      } catch {
+        // Offline or the request was aborted. Staying logged-out is the safe
+        // reading: every protected action is checked on the server anyway.
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const post = useCallback(
     async (url: string, body: unknown): Promise<AuthResult> => {
@@ -134,6 +150,7 @@ export function AuthProvider({
     account,
     isSignedIn: account !== null,
     isStaff: account?.role === "STAFF" || account?.role === "ADMIN",
+    isLoading,
     signUp,
     logIn,
     logOut,

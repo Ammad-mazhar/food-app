@@ -37,7 +37,23 @@ function createClient(): PrismaClient {
   }
 
   return new PrismaClient({
-    adapter: new PrismaPg({ connectionString }),
+    /*
+     * max: 1 — one connection per server instance, deliberately.
+     *
+     * The database is far away (Supabase ap-southeast-2; ~260ms round trip from
+     * Pakistan) and every NEW pooler connection pays a full TLS+auth handshake
+     * of roughly 1.8s. With a larger pool, two concurrent queries open two
+     * connections and the second pays that handshake, so running queries in
+     * parallel is SLOWER than running them one after another. Measured:
+     *
+     *   pool max=10   two parallel queries: 1340ms   serial: 524ms
+     *   pool max=1    two parallel queries:  714ms   serial: 718ms
+     *
+     * Capping at 1 makes concurrent queries queue on the warm connection
+     * instead, which is both faster and kinder to pgbouncer's client limit
+     * across many serverless instances.
+     */
+    adapter: new PrismaPg({ connectionString, max: 1 }),
     log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"],
   });
 }

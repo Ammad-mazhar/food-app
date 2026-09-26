@@ -27,7 +27,6 @@ import SearchPalette from "@/components/SearchPalette";
 import ServiceWorker from "@/components/ServiceWorker";
 import { restaurantInfo, siteUrl } from "@/lib/restaurant";
 import { THEME_INIT_SCRIPT } from "@/lib/theme";
-import { getSessionAccount } from "@/lib/session";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -74,21 +73,33 @@ export const viewport: Viewport = {
   ],
 };
 
-export default async function RootLayout({ children }: LayoutProps<"/">) {
-  // Resolved on the server so the first paint already knows who's signed in —
-  // no flash of a logged-out navbar, and no fetch-on-mount.
-  const account = await getSessionAccount();
-  const initialAccount = account
-    ? {
-        id: account.id,
-        name: account.name,
-        email: account.email,
-        phone: account.phone,
-        address: account.address,
-        role: account.role,
-      }
-    : null;
-
+/*
+ * NO SESSION READ HERE — and that is the single biggest performance decision in
+ * this app.
+ *
+ * This layout used to `await getSessionAccount()` so the first paint already
+ * knew who was signed in. That reads cookies(), and reading cookies in the root
+ * layout opts EVERY route out of static rendering. The cost, measured against
+ * the deployed site:
+ *
+ *     /        5.21s     (zero database queries; 24ms when rendered locally)
+ *     /about   1.60s     (zero database queries; 20ms locally)
+ *
+ * All of that was serverless invocation and distance, paid again on every
+ * navigation, for pages whose HTML is identical for every visitor. Netlify
+ * confirmed nothing was cacheable: `Cache-Status: fwd=bypass` on every request.
+ *
+ * So the session is resolved in the browser now (AuthProvider fetches
+ * /api/auth/me on mount) and these pages are served from the CDN. The trade is
+ * real: a signed-in visitor sees a logged-out navbar for a moment. That is a
+ * worse first paint on paper and a much better one in practice, because the page
+ * arrives in tens of milliseconds instead of seconds.
+ *
+ * Pages that genuinely need the session on the server — account, orders,
+ * checkout, admin — still read it themselves and stay dynamic, which is
+ * correct: they are per-visitor and were never cacheable anyway.
+ */
+export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     // suppressHydrationWarning: the inline script below sets data-theme on
     // <html> before React hydrates, so the server markup and the live DOM
@@ -102,7 +113,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
       <body className="min-h-full flex flex-col font-sans">
-        <AuthProvider initialAccount={initialAccount}>
+        <AuthProvider>
           <CartProvider>
             <Navbar />
             <main className="flex-1 pt-20">{children}</main>

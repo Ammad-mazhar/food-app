@@ -7,12 +7,16 @@
  * Absolute base URL, used by `metadataBase`, the sitemap and robots.txt so
  * social previews and crawlers resolve correctly.
  *
- * ⚠️ The fallback is a placeholder — this site has no domain yet. Set
- * NEXT_PUBLIC_SITE_URL in the deployment environment (no trailing slash), or
- * edit the fallback, before going live. Getting this wrong means share cards
- * and sitemap entries point at the wrong host.
+ * The fallback is the live production host, so the build is correct even when
+ * NEXT_PUBLIC_SITE_URL is unset. That matters more than it sounds: NEXT_PUBLIC_*
+ * values are inlined at build time, so an env var added after a build has no
+ * effect until the next one — and a wrong base URL silently breaks every share
+ * card and every sitemap entry rather than failing loudly.
+ *
+ * Set NEXT_PUBLIC_SITE_URL (no trailing slash) to override it — which is what
+ * to do when a custom domain replaces the netlify.app host.
  */
-const FALLBACK_SITE_URL = "https://texas-steak-house.example.com";
+const FALLBACK_SITE_URL = "https://texassteakhouse.netlify.app";
 
 /*
  * `||` rather than `??` on purpose: a blank `NEXT_PUBLIC_SITE_URL=` line in

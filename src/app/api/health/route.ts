@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { siteUrl } from "@/lib/restaurant";
 
 /**
  * Readiness probe, for diagnosing a deploy that can't reach its database.
@@ -14,14 +15,39 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const env = {
+  /*
+   * Only these two can break the running app. Everything the request path
+   * touches needs DATABASE_URL (src/lib/prisma.ts) and SESSION_SECRET
+   * (src/lib/session.ts); without either, pages throw.
+   */
+  const required = {
     DATABASE_URL: Boolean(process.env.DATABASE_URL),
-    DIRECT_DATABASE_URL: Boolean(process.env.DIRECT_DATABASE_URL),
     SESSION_SECRET: Boolean(process.env.SESSION_SECRET),
+  };
+
+  /*
+   * Absent here means "degraded", not "down", so these must not drive the
+   * status code — a 503 over an SEO nicety is a false alarm that trains you to
+   * ignore the probe.
+   *
+   *   DIRECT_DATABASE_URL  migrations and seeding only, and both fall back to
+   *                        DATABASE_URL (prisma7.config.ts, prisma/seed.ts).
+   *                        The serving path never reads it.
+   *   NEXT_PUBLIC_SITE_URL lib/restaurant.ts falls back to the production host,
+   *                        so canonical URLs stay correct without it.
+   */
+  const optional = {
+    DIRECT_DATABASE_URL: Boolean(process.env.DIRECT_DATABASE_URL),
     NEXT_PUBLIC_SITE_URL: Boolean(process.env.NEXT_PUBLIC_SITE_URL),
   };
 
-  const missing = Object.entries(env)
+  const env = { ...required, ...optional };
+
+  const missing = Object.entries(required)
+    .filter(([, present]) => !present)
+    .map(([name]) => name);
+
+  const degraded = Object.entries(optional)
     .filter(([, present]) => !present)
     .map(([name]) => name);
 
@@ -70,7 +96,14 @@ export async function GET() {
       ok,
       env,
       missing,
+      degraded,
       database,
+      /*
+       * The base URL this build actually resolved, which is the fastest way to
+       * tell "the env var never arrived" from "it arrived wrong". Safe to
+       * publish: it is already served verbatim in robots.txt and sitemap.xml.
+       */
+      siteUrl,
       // Useful for confirming a deploy actually picked up your latest push.
       commit: process.env.COMMIT_REF?.slice(0, 7) ?? null,
       checkedAt: new Date().toISOString(),

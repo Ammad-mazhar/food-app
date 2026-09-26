@@ -83,14 +83,26 @@ export const heroVideo = {
   poster: "/images/banner-poster.jpg",
 };
 
-export const ctaVideo = {
-  src: "/images/cta-web.mp4",
-  poster: "/images/cta-poster.jpg",
+/**
+ * Still photo behind the homepage CTA banner, in place of the video that used
+ * to sit there. One less autoplaying file on the homepage, and a still can be
+ * served as an optimised WebP at the size each device actually needs.
+ */
+export const ctaImage = {
+  src: "/images/CTA SECTION.jpg",
+  alt: "Steaming mixed grill on a cast-iron sizzler, fresh off the fire",
 };
 
+/*
+ * The About hero shows what used to be the homepage CTA clip. The name says
+ * where the video is *used*, not which file it is, so `cta-web.mp4` appearing
+ * under `aboutHeroVideo` is deliberate rather than a mix-up.
+ *
+ * `about-banner-web.mp4` (the flambé shot) is now unused by any page.
+ */
 export const aboutHeroVideo = {
-  src: "/images/about-banner-web.mp4",
-  poster: "/images/about-banner-poster.jpg",
+  src: "/images/cta-web.mp4",
+  poster: "/images/cta-poster.jpg",
 };
 
 /**

@@ -4,7 +4,7 @@ import { menuItems } from "@/lib/data";
 import {
   restaurantInfo,
   heroVideo,
-  ctaVideo,
+  ctaImage,
   galleryPhotos,
   aboutPhotos,
   dishCarouselSlides,
@@ -406,17 +406,16 @@ export default function Home() {
 
       {/* CTA banner */}
       <section className="reveal relative flex min-h-90 items-center overflow-hidden border-b border-border">
-        <video
-          className="absolute inset-0 h-full w-full object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="none"
-          poster={ctaVideo.poster}
-        >
-          <source src={ctaVideo.src} type="video/mp4" />
-        </video>
+        {/* The source photo is portrait (2:3) and this banner is very wide, so
+            a centred crop would land on the empty steam above the food.
+            object-position pulls the visible slice down onto the sizzler. */}
+        <Image
+          src={ctaImage.src}
+          alt={ctaImage.alt}
+          fill
+          sizes="100vw"
+          className="object-cover object-[50%_58%]"
+        />
         <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/60 to-black/55" />
         <div className="relative z-10 mx-auto w-full max-w-3xl px-4 text-center sm:px-6">
           <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-on-dark-accent/40 bg-black/35 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-on-dark-accent backdrop-blur-sm">

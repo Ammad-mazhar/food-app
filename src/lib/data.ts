@@ -191,7 +191,7 @@ export const menuItems: MenuItem[] = [
     price: 250,
     category: "Beverages",
     isVeg: true,
-    image: "/images/fresh lime soda.jpg",
+    image: "/images/lemon soda.jpg",
     allergens: [],
     nutrition: { kcal: 90, protein: 0, carbs: 23, fat: 0 },
   },

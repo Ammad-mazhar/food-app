@@ -11,17 +11,35 @@
 # it must be regenerated on the build machine. `postinstall` in package.json
 # already runs `prisma generate`; this makes the dependency explicit for anyone
 # reading the config.
+  environment = { NODE_VERSION = "22" }
+
+# ---------------------------------------------------------------------------
+# SECRETS_SCAN_OMIT_PATHS IS SET IN THE NETLIFY UI, NOT HERE. DO NOT ADD IT BACK
+# TO THIS FILE.
 #
-# SECRETS_SCAN_OMIT_PATHS covers Turbopack's persistent cache. Turbopack records
-# the env vars a build read so it can invalidate compiled output when one
-# changes, which writes SESSION_SECRET into .netlify/.next/cache/turbopack/*.sst
-# and fails the secrets scan on every build. That directory is build-time only —
-# it is never uploaded to the CDN, bundled into a function, or served.
+# It must be set, or the build fails: Turbopack records the env vars a build
+# read so it can invalidate compiled output when one changes, which writes
+# SESSION_SECRET verbatim into .netlify/.next/cache/turbopack/*.sst. The secrets
+# scanner walks that directory and stops the build. (That cache is build-time
+# only — never uploaded to the CDN, bundled into a function, or served. The
+# value is on the same build machine that already holds the env var.)
 #
-# Scoped to that one path on purpose. SECRETS_SCAN_OMIT_KEYS or
-# SECRETS_SCAN_ENABLED=false would also silence the scan over real deployed
-# output, and the scan has already caught one genuinely broken secret here.
-  environment = { NODE_VERSION = "22", SECRETS_SCAN_OMIT_PATHS = ".netlify/.next/cache/**" }
+# The value to set in the UI is the path `.netlify/.next/cache/` followed by a
+# recursive glob (two asterisks). Written in pieces on purpose — see below.
+#
+# Why not here, and why the value is spelled out in pieces above: the scanner
+# does a plain substring search of the repo for the values of ALL build
+# environment variables, including ones declared in this file, and it does not
+# skip comments. Writing that value anywhere in this file — as a setting OR as
+# documentation — makes it find itself and fail every build with
+#
+#   Secret env var "SECRETS_SCAN_OMIT_PATHS"'s value detected:
+#     found value at line 24 in netlify.toml
+#
+# Keep the scope narrow when setting it. SECRETS_SCAN_OMIT_KEYS or
+# SECRETS_SCAN_ENABLED=false would silence the scan over real deployed output
+# too, and this scan has already caught one genuinely broken secret here.
+# ---------------------------------------------------------------------------
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"

@@ -11,14 +11,13 @@ import {
   ReactNode,
 } from "react";
 
-/**
- * Not in TypeScript's DOM lib because it is a Chromium extension to the spec
- * rather than a standard. Firefox and Safari never fire it.
- */
-interface BeforeInstallPromptEvent extends Event {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
-}
+import {
+  INSTALL_DONE_EVENT,
+  INSTALL_READY_EVENT,
+  clearCapturedPrompt,
+  readCapturedPrompt,
+  type BeforeInstallPromptEvent,
+} from "@/lib/install";
 
 export type InstallPlatform = "ios" | "chromium" | "unsupported";
 
@@ -102,6 +101,21 @@ function subscribeNever(): () => void {
   return () => {};
 }
 
+/** Re-reads the stash whenever the inline script captures or clears a prompt. */
+function subscribeInstall(onChange: () => void): () => void {
+  window.addEventListener(INSTALL_READY_EVENT, onChange);
+  window.addEventListener(INSTALL_DONE_EVENT, onChange);
+  return () => {
+    window.removeEventListener(INSTALL_READY_EVENT, onChange);
+    window.removeEventListener(INSTALL_DONE_EVENT, onChange);
+  };
+}
+
+/** No prompt exists during server rendering. */
+function serverPrompt(): BeforeInstallPromptEvent | null {
+  return null;
+}
+
 /**
  * One home for the install capability.
  *
@@ -127,38 +141,43 @@ export function InstallProvider({ children }: { children: ReactNode }) {
     serverSecure
   );
 
-  const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
+  /*
+   * The inline script in <head> owns the real listener, because Chrome fires
+   * beforeinstallprompt before hydration — a listener added from React misses
+   * it, and the button is then dead forever on a site that installs perfectly
+   * well from Chrome's own menu.
+   *
+   * So this subscribes to the stash rather than to the browser event. The
+   * captured event lives on `window`, so its reference is stable between
+   * renders, which is what getSnapshot requires.
+   */
+  const deferred = useSyncExternalStore(
+    subscribeInstall,
+    readCapturedPrompt,
+    serverPrompt
+  );
   const [justInstalled, setJustInstalled] = useState(false);
 
   useEffect(() => {
-    function onBeforeInstallPrompt(event: Event) {
-      // Without this, Chrome may show nothing at all; we are taking over
-      // responsibility for asking. setState is fine here — this runs from an
-      // event, not synchronously in the effect body.
-      event.preventDefault();
-      setDeferred(event as BeforeInstallPromptEvent);
-    }
-
     function onInstalled() {
-      setDeferred(null);
       setJustInstalled(true);
     }
-
-    window.addEventListener("beforeinstallprompt", onBeforeInstallPrompt);
-    window.addEventListener("appinstalled", onInstalled);
-    return () => {
-      window.removeEventListener("beforeinstallprompt", onBeforeInstallPrompt);
-      window.removeEventListener("appinstalled", onInstalled);
-    };
+    window.addEventListener(INSTALL_DONE_EVENT, onInstalled);
+    return () => window.removeEventListener(INSTALL_DONE_EVENT, onInstalled);
   }, []);
 
   const promptInstall = useCallback(async () => {
     if (!deferred) return "unavailable" as const;
     await deferred.prompt();
     const { outcome } = await deferred.userChoice;
-    // The event is spent either way; Chrome will fire a fresh one later if the
-    // visitor declined and the site still qualifies.
-    setDeferred(null);
+    /*
+     * The event is spent either way. Clearing the stash and announcing it is
+     * what moves every consumer back to "no prompt available" — Chrome will
+     * fire a fresh one later if the visitor declined and the site still
+     * qualifies.
+     */
+    clearCapturedPrompt();
+    window.dispatchEvent(new Event(INSTALL_READY_EVENT));
     return outcome;
   }, [deferred]);
 

@@ -31,6 +31,7 @@ import InstallPrompt from "@/components/InstallPrompt";
 import WelcomeOverlay from "@/components/WelcomeOverlay";
 import { restaurantInfo, siteUrl } from "@/lib/restaurant";
 import { THEME_INIT_SCRIPT } from "@/lib/theme";
+import { INSTALL_INIT_SCRIPT } from "@/lib/install";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -127,6 +128,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        {/*
+          Must run before hydration: Chrome fires beforeinstallprompt early
+          enough that a React-registered listener misses it entirely, leaving
+          the install button permanently inert. See src/lib/install.ts.
+        */}
+        <script dangerouslySetInnerHTML={{ __html: INSTALL_INIT_SCRIPT }} />
       </head>
       <body className="min-h-full flex flex-col font-sans">
         <AuthProvider>

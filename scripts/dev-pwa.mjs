@@ -30,13 +30,16 @@ const args = ["next", "dev", "--experimental-https", ...process.argv.slice(2)];
 console.log("Starting dev server with the service worker enabled.\n");
 console.log("  Desktop:  open https://localhost:3000 and use the install icon");
 console.log("            in Chrome's address bar.\n");
-console.log("  Phone:    easiest is Chrome DevTools > three dots > More tools >");
+console.log("  Phone:    use Chrome DevTools > three dots > More tools >");
 console.log("            Remote devices > Port forwarding, mapping 3000 to");
 console.log("            localhost:3000. The phone then treats it as localhost,");
-console.log("            which is a secure origin, and the install prompt works");
-console.log("            with no certificate warnings.\n");
-console.log("            Over the LAN instead, open https://<this-machine-ip>:3000");
-console.log("            and accept the self-signed certificate first.\n");
+console.log("            which is a secure origin, and install works.\n");
+console.log("            Opening https://<this-machine-ip>:3000 over the LAN is");
+console.log("            NOT enough: the certificate minted here is self-signed,");
+console.log("            and clicking through the warning still leaves the origin");
+console.log("            untrusted, so Chrome refuses to install. Making that");
+console.log("            route work means installing this machine's local CA on");
+console.log("            the phone. Deploying over real HTTPS is far less work.\n");
 
 const child = spawn("npx", args, {
   stdio: "inherit",

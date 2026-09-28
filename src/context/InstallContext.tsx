@@ -29,6 +29,14 @@ interface InstallContextValue {
   isInstalled: boolean;
   /** Shapes the instructions shown when canPrompt is false. */
   platform: InstallPlatform;
+  /**
+   * False on a plain-HTTP origin that isn't localhost — which is exactly what a
+   * phone gets when it opens the dev server at http://192.168.x.x:3000. No
+   * browser will install a web app from there, or even register a service
+   * worker, so this is usually the real answer to "why is the button dead on my
+   * phone when it worked on my laptop".
+   */
+  isSecure: boolean;
   /** Opens the browser's own install sheet. Resolves once the user chooses. */
   promptInstall: () => Promise<"accepted" | "dismissed" | "unavailable">;
 }
@@ -53,6 +61,17 @@ function standalone(): boolean {
  */
 let installedCache: boolean | null = null;
 let platformCache: InstallPlatform | null = null;
+let secureCache: boolean | null = null;
+
+function secureSnapshot(): boolean {
+  if (secureCache === null) secureCache = window.isSecureContext === true;
+  return secureCache;
+}
+
+/** Assume secure on the server; production is HTTPS and this only gates a hint. */
+function serverSecure(): boolean {
+  return true;
+}
 
 function installedSnapshot(): boolean {
   if (installedCache === null) installedCache = standalone();
@@ -102,6 +121,11 @@ export function InstallProvider({ children }: { children: ReactNode }) {
     platformSnapshot,
     serverPlatform
   );
+  const isSecure = useSyncExternalStore(
+    subscribeNever,
+    secureSnapshot,
+    serverSecure
+  );
 
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
   const [justInstalled, setJustInstalled] = useState(false);
@@ -143,9 +167,10 @@ export function InstallProvider({ children }: { children: ReactNode }) {
       canPrompt: deferred !== null,
       isInstalled: detectedInstalled || justInstalled,
       platform,
+      isSecure,
       promptInstall,
     }),
-    [deferred, detectedInstalled, justInstalled, platform, promptInstall]
+    [deferred, detectedInstalled, justInstalled, platform, isSecure, promptInstall]
   );
 
   return (

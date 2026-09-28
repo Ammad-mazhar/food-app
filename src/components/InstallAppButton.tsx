@@ -18,7 +18,8 @@ export default function InstallAppButton({
 }: {
   className?: string;
 }) {
-  const { canPrompt, isInstalled, platform, promptInstall } = useInstall();
+  const { canPrompt, isInstalled, platform, isSecure, promptInstall } =
+    useInstall();
   const [showHelp, setShowHelp] = useState(false);
   const [declined, setDeclined] = useState(false);
 
@@ -64,7 +65,29 @@ export default function InstallAppButton({
 
       {showHelp && !canPrompt && (
         <div className="mt-3 rounded-lg border border-border bg-surface p-3 text-xs leading-relaxed text-muted">
-          {platform === "ios" ? (
+          {!isSecure ? (
+            /*
+             * Checked before anything else, because it overrides every other
+             * explanation: no browser installs a web app from an insecure
+             * origin, so telling an Android user to "look for the install icon"
+             * here would send them hunting for something that cannot appear.
+             */
+            <>
+              <p className="mb-1 font-semibold text-ink">
+                This address can&apos;t be installed
+              </p>
+              <p>
+                The page is being served over plain HTTP, and browsers only
+                install apps from a secure address — HTTPS, or{" "}
+                <strong>localhost</strong> on the same machine. That is why it
+                worked on the laptop and not here.
+              </p>
+              <p className="mt-2">
+                Open the published HTTPS site on this phone, or forward the port
+                from a computer so the phone sees it as localhost.
+              </p>
+            </>
+          ) : platform === "ios" ? (
             <>
               <p className="mb-1 font-semibold text-ink">On iPhone or iPad</p>
               <p>

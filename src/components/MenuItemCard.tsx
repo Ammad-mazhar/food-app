@@ -13,13 +13,11 @@ import { FlameIcon } from "@/components/icons";
 export default function MenuItemCard({
   item,
   priority = false,
-  initialFavourite = false,
   soldOut = false,
 }: {
   item: MenuItem;
   /** Set on the cards in the first row so the LCP image isn't lazy-loaded. */
   priority?: boolean;
-  initialFavourite?: boolean;
   /** Staff have taken this dish off today's menu. */
   soldOut?: boolean;
 }) {
@@ -76,11 +74,7 @@ export default function MenuItemCard({
             }`}
             title={item.isVeg ? "Vegetarian" : "Non-vegetarian"}
           />
-          <FavoriteButton
-            itemId={item.id}
-            itemName={item.name}
-            initialFavourite={initialFavourite}
-          />
+          <FavoriteButton itemId={item.id} itemName={item.name} />
         </div>
 
         {soldOut && (

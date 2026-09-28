@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { MenuItem } from "@/lib/types";
 import MenuItemCard from "@/components/MenuItemCard";
 
@@ -17,13 +17,12 @@ export type BrowsableItem = MenuItem & { isAvailable: boolean };
 
 /**
  * Filtering, search and sort for the menu. The dishes themselves are read from
- * the database by the page (a Server Component) and handed down.
+ * the database by the page (a Server Component) and handed down, so this stays
+ * a pure interaction layer with no data fetching of its own.
  *
- * Favourites are the one exception, and they are fetched here rather than
- * passed in: the page is cached and its HTML is shared by every visitor, so
- * baking one person's hearted dishes into it would show them to everybody. They
- * arrive a moment after paint, which is why the heart can light up just after
- * the card appears.
+ * Favourites are not passed through here: the page is cached and its HTML is
+ * shared by every visitor, so each heart reads its own state from
+ * FavouritesContext instead.
  */
 export default function MenuBrowser({
   menuItems,
@@ -36,30 +35,6 @@ export default function MenuBrowser({
   const [vegOnly, setVegOnly] = useState(false);
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<SortKey>("featured");
-  const [favouriteIds, setFavouriteIds] = useState<string[]>([]);
-
-  useEffect(() => {
-    // Guests get a 200 with an empty list, so there is no signed-in check to do
-    // here and no error state worth showing.
-    let cancelled = false;
-
-    (async () => {
-      try {
-        const res = await fetch("/api/favourites");
-        if (!res.ok) return;
-        const data = await res.json();
-        if (!cancelled && Array.isArray(data.menuItemIds)) {
-          setFavouriteIds(data.menuItemIds);
-        }
-      } catch {
-        // Offline, or the request was cut short. The menu still works.
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   const filteredItems = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -203,7 +178,6 @@ export default function MenuBrowser({
               key={item.id}
               item={item}
               priority={i < 4}
-              initialFavourite={favouriteIds.includes(item.id)}
               soldOut={!item.isAvailable}
             />
           ))}

@@ -3,45 +3,36 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { HeartIcon } from "@/components/icons";
+import { useFavourites } from "@/context/FavouritesContext";
 
 /**
  * Heart toggle for one dish, backed by the database.
  *
- * The initial state comes from the server render, so there's no flash of an
- * empty heart on a dish the visitor has already saved. The toggle is optimistic
- * and rolls back if the request fails; a 401 means they aren't signed in, which
- * is a prompt rather than an error.
+ * State comes from FavouritesContext rather than a prop: the menu pages are
+ * cached, so their shared HTML cannot carry one visitor's favourites. The
+ * context fetches them once and every heart reads from it, which also keeps the
+ * two hearts for the same dish on a dish page in agreement.
+ *
+ * The toggle is optimistic and rolls back if the request fails; a 401 means
+ * they aren't signed in, which is a prompt rather than an error.
  */
 export default function FavoriteButton({
   itemId,
   itemName,
-  initialFavourite = false,
   variant = "overlay",
 }: {
   itemId: string;
   itemName: string;
-  initialFavourite?: boolean;
   /** "overlay" sits on a photo; "inline" sits on a paper surface. */
   variant?: "overlay" | "inline";
 }) {
   const router = useRouter();
-  const [isFav, setIsFav] = useState(initialFavourite);
+  const { isFavourite, setFavourite } = useFavourites();
   const [needsLogin, setNeedsLogin] = useState(false);
   const [busy, setBusy] = useState(false);
 
-  /*
-   * initialFavourite now arrives AFTER mount: the menu page is cached, so
-   * MenuBrowser fetches favourites in the browser instead of receiving them in
-   * shared HTML. Seeding state once would leave every heart empty.
-   *
-   * Only reacts when the incoming value actually changes, so it can't clobber
-   * an optimistic toggle. Same render-phase sync used in AuthContext.
-   */
-  const [seeded, setSeeded] = useState(initialFavourite);
-  if (seeded !== initialFavourite) {
-    setSeeded(initialFavourite);
-    setIsFav(initialFavourite);
-  }
+  const isFav = isFavourite(itemId);
+  const setIsFav = (value: boolean) => setFavourite(itemId, value);
 
   async function toggle(e: React.MouseEvent) {
     // Cards wrap their image in a link; without this the heart would navigate

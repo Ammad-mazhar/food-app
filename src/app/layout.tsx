@@ -19,12 +19,16 @@ const displayFont = Rokkitt({
 });
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
+import { FavouritesProvider } from "@/context/FavouritesContext";
+import { InstallProvider } from "@/context/InstallContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import RevealObserver from "@/components/RevealObserver";
 import FloatingHub from "@/components/FloatingHub";
 import SearchPalette from "@/components/SearchPalette";
 import ServiceWorker from "@/components/ServiceWorker";
+import InstallPrompt from "@/components/InstallPrompt";
+import WelcomeOverlay from "@/components/WelcomeOverlay";
 import { restaurantInfo, siteUrl } from "@/lib/restaurant";
 import { THEME_INIT_SCRIPT } from "@/lib/theme";
 
@@ -61,6 +65,18 @@ export const metadata: Metadata = {
       "Fresh, never-frozen steaks fire-grilled to order in Saddar, Rawalpindi.",
   },
   robots: { index: true, follow: true },
+  /*
+   * iOS ignores the web app manifest's icon list entirely and reads this link
+   * instead. Without it, adding the site to an iPhone home screen produces a
+   * blurry screenshot of the page rather than the crest.
+   */
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180" }],
+  },
 };
 
 export const viewport: Viewport = {
@@ -114,7 +130,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="min-h-full flex flex-col font-sans">
         <AuthProvider>
-          <CartProvider>
+          <FavouritesProvider>
+            <InstallProvider>
+            <CartProvider>
             <Navbar />
             <main className="flex-1 pt-20">{children}</main>
             <Footer />
@@ -122,7 +140,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <SearchPalette />
             <RevealObserver />
             <ServiceWorker />
-          </CartProvider>
+            <InstallPrompt />
+            {/* Last, so its overlay sits above everything else on first launch. */}
+            <WelcomeOverlay />
+            </CartProvider>
+            </InstallProvider>
+          </FavouritesProvider>
         </AuthProvider>
       </body>
     </html>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { StarIcon } from "@/components/icons";
+import { useAuth } from "@/context/AuthContext";
 
 export type PublicReview = {
   id: string;
@@ -36,17 +37,20 @@ export default function DishReviews({
   itemName,
   initialReviews,
   initialAverage,
-  signedIn,
-  currentAccountId,
 }: {
   itemId: string;
   itemName: string;
   initialReviews: PublicReview[];
   initialAverage: number;
-  signedIn: boolean;
-  currentAccountId: string | null;
 }) {
   const router = useRouter();
+  /*
+   * Read from context rather than passed in: the dish page is cached now, so
+   * its HTML is shared by everyone and cannot say who is signed in.
+   */
+  const { account } = useAuth();
+  const signedIn = account !== null;
+  const currentAccountId = account?.id ?? null;
   const [rating, setRating] = useState(0);
   const [hovered, setHovered] = useState(0);
   const [comment, setComment] = useState("");

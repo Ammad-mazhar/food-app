@@ -9,6 +9,7 @@ import {
   InstagramIcon,
   WhatsAppIcon,
 } from "@/components/icons";
+import InstallAppButton from "@/components/InstallAppButton";
 
 const quickLinks = [
   { href: "/menu", label: "Menu" },
@@ -69,6 +70,13 @@ export default function Footer() {
               );
             })}
           </div>
+
+          {/*
+           * Permanent install entry point. Hides itself once the app is
+           * installed, so it never invites someone to install what they are
+           * already running.
+           */}
+          <InstallAppButton className="mt-5" />
         </div>
 
         <div>

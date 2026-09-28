@@ -86,7 +86,6 @@ export default async function FavouritesPage() {
             key={item.id}
             item={item}
             priority={i < 4}
-            initialFavourite
             soldOut={!item.isAvailable}
           />
         ))}

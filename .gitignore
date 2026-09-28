@@ -42,6 +42,10 @@ yarn-error.log*
 # vercel
 .vercel
 
+# Local HTTPS certificates minted by `next dev --experimental-https`
+# (npm run dev:pwa). Machine-specific, and a private key never belongs in git.
+/certificates
+
 # netlify — local build output and, critically, the Turbopack persistent cache.
 # That cache records the env vars a build read (so it knows when to invalidate),
 # which means SESSION_SECRET and the database URLs end up inside it verbatim.

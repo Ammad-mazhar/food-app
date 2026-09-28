@@ -2,13 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import {
-  getMenuItem,
-  getMenu,
-  getReviews,
-  getFavouriteIds,
-} from "@/lib/queries";
-import { getSessionAccount } from "@/lib/session";
+import { getMenuItem, getMenu, getReviews } from "@/lib/queries";
 import { restaurantInfo } from "@/lib/restaurant";
 import { formatPrice } from "@/lib/utils";
 import DishArt from "@/components/DishArt";
@@ -23,11 +17,29 @@ import RecentlyViewed, {
 import { FlameIcon, LeafIcon, ClockIcon, PinIcon } from "@/components/icons";
 
 /**
- * Rendered per request now that the menu lives in the database — prices,
- * availability and reviews all change without a deploy, and the page also
- * shows whether *this* visitor has hearted the dish.
+ * Cached for five minutes, where this used to be force-dynamic.
+ *
+ * It was the slowest page in the app at 1.14s, because it ran five queries
+ * against a database in Sydney on every view. Two of those were per-visitor —
+ * the visitor's favourites and their account — and they are the only reason the
+ * page could not be shared. Both now resolve in the browser (FavouritesContext
+ * and AuthContext), which leaves nothing visitor-specific in the HTML.
+ *
+ * Prices, availability and reviews still update without a deploy; they are just
+ * up to five minutes behind. A review posting calls router.refresh(), so the
+ * person who wrote it sees it immediately.
  */
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
+
+/**
+ * Prerender every dish at build time so the first visitor to each one gets a
+ * cached page rather than paying to warm it. Seventeen dishes is small enough
+ * that there is no reason to build them lazily.
+ */
+export async function generateStaticParams() {
+  const items = await getMenu();
+  return items.map((item) => ({ id: item.id }));
+}
 
 export async function generateMetadata({
   params,
@@ -52,12 +64,13 @@ export default async function DishPage({ params }: PageProps<"/menu/[id]">) {
   const item = await getMenuItem(id);
   if (!item) notFound();
 
-  const [allItems, reviewData, favouriteIds, account] = await Promise.all([
-    getMenu(),
-    getReviews(item.id),
-    getFavouriteIds(),
-    getSessionAccount(),
-  ]);
+  /*
+   * Serial, not Promise.all: concurrent queries each take their own pooler
+   * connection and pay a fresh TLS handshake to Sydney, which measured slower
+   * than simply waiting. See the note in src/lib/prisma.ts.
+   */
+  const allItems = await getMenu();
+  const reviewData = await getReviews(item.id);
 
   const related = allItems
     .filter((i) => i.category === item.category && i.id !== item.id)
@@ -126,7 +139,6 @@ export default async function DishPage({ params }: PageProps<"/menu/[id]">) {
                 itemId={item.id}
                 itemName={item.name}
                 variant="inline"
-                initialFavourite={favouriteIds.includes(item.id)}
               />
               <ShareButton title={item.name} text={item.description} />
             </div>
@@ -238,8 +250,6 @@ export default async function DishPage({ params }: PageProps<"/menu/[id]">) {
           createdAt: r.createdAt.toISOString(),
         }))}
         initialAverage={reviewData.average}
-        signedIn={account !== null}
-        currentAccountId={account?.id ?? null}
       />
 
       <RecentlyViewed excludeId={item.id} />
@@ -254,7 +264,6 @@ export default async function DishPage({ params }: PageProps<"/menu/[id]">) {
               <MenuItemCard
                 key={r.id}
                 item={r}
-                initialFavourite={favouriteIds.includes(r.id)}
                 soldOut={!r.isAvailable}
               />
             ))}

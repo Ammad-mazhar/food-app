@@ -18,7 +18,7 @@ export default function InstallAppButton({
 }: {
   className?: string;
 }) {
-  const { canPrompt, isInstalled, platform, isSecure, promptInstall } =
+  const { canPrompt, isInstalled, platform, isSecure, swStatus, promptInstall } =
     useInstall();
   const [showHelp, setShowHelp] = useState(false);
   const [declined, setDeclined] = useState(false);
@@ -99,13 +99,29 @@ export default function InstallAppButton({
             </>
           ) : platform === "chromium" ? (
             <>
-              <p className="mb-1 font-semibold text-ink">Installing</p>
-              <p>
-                Look for the install icon in the address bar, or open the browser
-                menu and choose <strong>Install</strong> or{" "}
-                <strong>Add to Home screen</strong>. If neither appears yet, your
-                browser is still deciding — visit once more and it should show
-                up.
+              <p className="mb-1 font-semibold text-ink">
+                Your browser hasn&apos;t offered an install yet
+              </p>
+              {swStatus === "none" ? (
+                <p>
+                  The offline worker isn&apos;t registered on this device yet.
+                  Chrome won&apos;t offer to install without it, and it only
+                  registers after the page finishes loading —{" "}
+                  <strong>reload this page once</strong> and try again.
+                </p>
+              ) : (
+                <p>
+                  Everything needed is in place, so Chrome is either still
+                  deciding or already counts this site as installed. If you added
+                  it to your home screen before,{" "}
+                  <strong>remove that icon first</strong> — Chrome stays quiet
+                  for a site it thinks you already have. Then reload and tap
+                  again.
+                </p>
+              )}
+              <p className="mt-2">
+                You can always install by hand: browser menu →{" "}
+                <strong>Add to Home screen</strong>.
               </p>
             </>
           ) : (
@@ -118,6 +134,23 @@ export default function InstallAppButton({
               </p>
             </>
           )}
+
+          {/*
+            Readable on the phone itself. Chrome's installability verdict is
+            otherwise only visible through DevTools remote debugging, which is a
+            lot to ask of someone just trying to install an app — and it is the
+            only way to tell "still deciding" apart from "quietly broken".
+          */}
+          <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 border-t border-border pt-2 text-[11px]">
+            <dt>Secure address</dt>
+            <dd className="text-ink">{isSecure ? "yes" : "no"}</dd>
+            <dt>Offline worker</dt>
+            <dd className="text-ink">{swStatus}</dd>
+            <dt>Install offer received</dt>
+            <dd className="text-ink">{canPrompt ? "yes" : "no"}</dd>
+            <dt>Already installed</dt>
+            <dd className="text-ink">{isInstalled ? "yes" : "no"}</dd>
+          </dl>
         </div>
       )}
     </div>

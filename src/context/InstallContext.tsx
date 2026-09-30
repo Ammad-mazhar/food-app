@@ -36,6 +36,12 @@ interface InstallContextValue {
    * phone when it worked on my laptop".
    */
   isSecure: boolean;
+  /**
+   * Whether a service worker is registered. Chrome refuses to treat a site as
+   * installable without one, and it registers after page load — which is why
+   * the install offer often only appears on a second visit.
+   */
+  swStatus: "checking" | "registered" | "none" | "unsupported";
   /** Opens the browser's own install sheet. Resolves once the user chooses. */
   promptInstall: () => Promise<"accepted" | "dismissed" | "unavailable">;
 }
@@ -157,6 +163,8 @@ export function InstallProvider({ children }: { children: ReactNode }) {
     serverPrompt
   );
   const [justInstalled, setJustInstalled] = useState(false);
+  const [swStatus, setSwStatus] =
+    useState<InstallContextValue["swStatus"]>("checking");
 
   useEffect(() => {
     function onInstalled() {
@@ -164,6 +172,34 @@ export function InstallProvider({ children }: { children: ReactNode }) {
     }
     window.addEventListener(INSTALL_DONE_EVENT, onInstalled);
     return () => window.removeEventListener(INSTALL_DONE_EVENT, onInstalled);
+  }, []);
+
+  /*
+   * Asked once, after mount. This is the input to Chrome's installability check
+   * that is easiest to get wrong and impossible to see from the outside — the
+   * worker registers after load, so a visitor's very first page view frequently
+   * has none yet, and no install is offered however correct everything else is.
+   */
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      if (!("serviceWorker" in navigator)) {
+        if (!cancelled) setSwStatus("unsupported");
+        return;
+      }
+      try {
+        const reg = await navigator.serviceWorker.getRegistration();
+        // setState after an await is asynchronous, so it does not cascade.
+        if (!cancelled) setSwStatus(reg ? "registered" : "none");
+      } catch {
+        if (!cancelled) setSwStatus("none");
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const promptInstall = useCallback(async () => {
@@ -187,9 +223,18 @@ export function InstallProvider({ children }: { children: ReactNode }) {
       isInstalled: detectedInstalled || justInstalled,
       platform,
       isSecure,
+      swStatus,
       promptInstall,
     }),
-    [deferred, detectedInstalled, justInstalled, platform, isSecure, promptInstall]
+    [
+      deferred,
+      detectedInstalled,
+      justInstalled,
+      platform,
+      isSecure,
+      swStatus,
+      promptInstall,
+    ]
   );
 
   return (

@@ -15,19 +15,32 @@ export async function GET(request: Request) {
     const menuItemId = new URL(request.url).searchParams.get("menuItemId");
     if (!menuItemId) return badRequest("menuItemId is required.");
 
-    const reviews = await prisma.review.findMany({
-      where: { menuItemId },
-      orderBy: { createdAt: "desc" },
-      take: 100,
-      select: {
-        id: true,
-        rating: true,
-        author: true,
-        comment: true,
-        createdAt: true,
-        accountId: true,
-      },
-    });
+    const [rows, viewer] = await Promise.all([
+      prisma.review.findMany({
+        where: { menuItemId },
+        orderBy: { createdAt: "desc" },
+        take: 100,
+        select: {
+          id: true,
+          rating: true,
+          author: true,
+          comment: true,
+          createdAt: true,
+          accountId: true,
+        },
+      }),
+      getSessionAccount(),
+    ]);
+
+    /*
+     * This endpoint is public, so accountId must not go out with it: a stable
+     * account id beside a display name lets anyone scrape the menu and stitch
+     * one person's reviews together. The UI only needed "is this mine".
+     */
+    const reviews = rows.map(({ accountId, ...rest }) => ({
+      ...rest,
+      isMine: accountId !== null && accountId === viewer?.id,
+    }));
 
     const average =
       reviews.length > 0

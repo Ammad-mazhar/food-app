@@ -45,7 +45,18 @@ export const createOrderSchema = z.object({
   customerName: z.string().trim().min(1).max(80),
   phone: phoneSchema,
   address: z.string().trim().max(300).optional(),
-  paymentMethod: z.enum(["CASH", "CARD", "WALLET"]),
+  /*
+   * CASH only, enforced here rather than only in the checkout UI.
+   *
+   * The schema still has CARD and WALLET because past orders may carry them and
+   * the columns must keep parsing. But nothing in this app takes a payment, so
+   * accepting an order marked CARD would record a debt the customer believes is
+   * settled. Disabling the radio buttons is not enough — a client can post
+   * whatever it likes, which is the whole reason this file exists.
+   *
+   * Widen this the moment a payment provider actually charges the card.
+   */
+  paymentMethod: z.literal("CASH"),
   promoCode: z.string().trim().max(40).optional(),
   lines: z.array(orderLineInputSchema).min(1).max(50),
 });

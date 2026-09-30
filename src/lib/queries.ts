@@ -1,7 +1,7 @@
 import "server-only";
 
 import { prisma } from "@/lib/prisma";
-import { getSessionAccount } from "@/lib/session";
+import { getSessionAccount, safeEqual } from "@/lib/session";
 import type { MenuItem, Allergen, Nutrition } from "@/lib/types";
 
 /**
@@ -62,8 +62,20 @@ export async function getMenuCategories() {
   return rows.map((r) => r.category);
 }
 
+/**
+ * Reviews for the cached dish page.
+ *
+ * Deliberately knows nothing about who is asking. This page is prerendered and
+ * its HTML is shared by everyone, so reading the session here would force the
+ * route back to per-request rendering — and `isMine` would be wrong for every
+ * visitor but the one who happened to warm the cache.
+ *
+ * So every row goes out as `isMine: false`, and DishReviews re-fetches from
+ * /api/reviews in the browser, which does know the viewer. That same fetch is
+ * what shows a newly posted review immediately despite the cache.
+ */
 export async function getReviews(menuItemId: string) {
-  const reviews = await prisma.review.findMany({
+  const rows = await prisma.review.findMany({
     where: { menuItemId },
     orderBy: { createdAt: "desc" },
     take: 50,
@@ -73,9 +85,10 @@ export async function getReviews(menuItemId: string) {
       author: true,
       comment: true,
       createdAt: true,
-      accountId: true,
     },
   });
+
+  const reviews = rows.map((row) => ({ ...row, isMine: false }));
 
   const average =
     reviews.length > 0
@@ -135,7 +148,13 @@ export async function getOrder(reference: string, token?: string) {
 
   if (account?.role === "STAFF" || account?.role === "ADMIN") return order;
   if (!order.accessToken || !token) return null;
-  return order.accessToken === token ? order : null;
+  /*
+   * safeEqual, not ===. This guards the same secret as the API route, and `===`
+   * returns as soon as two bytes differ, so response time leaks how much of the
+   * token a guess got right. The API already compared it in constant time; this
+   * path was quietly weaker for no reason.
+   */
+  return safeEqual(order.accessToken, token) ? order : null;
 }
 
 export async function getMyReservations() {

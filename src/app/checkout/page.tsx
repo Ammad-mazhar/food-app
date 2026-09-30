@@ -278,6 +278,19 @@ export default function CheckoutPage() {
             <h2 className="mb-3 font-display text-lg font-semibold text-ink">
               Payment Method
             </h2>
+            {/*
+              CARD AND WALLET ARE DISABLED ON PURPOSE.
+
+              There is no payment provider wired into this app — no Stripe, no
+              JazzCash, no Easypaisa. Selecting "Card" used to place an ordinary
+              unpaid order, so a customer could reasonably believe they had paid
+              while the driver arrived expecting cash. Offering a payment method
+              that takes no payment is a promise the code cannot keep.
+
+              To switch one back on: integrate the provider, take payment before
+              creating the order, record the transaction on the Order row, and
+              then remove `disabled` here.
+            */}
             <div className="flex flex-col gap-2">
               {(
                 [
@@ -285,26 +298,49 @@ export default function CheckoutPage() {
                     id: "cash",
                     label:
                       "Cash on " + (orderType === "delivery" ? "Delivery" : "Pickup"),
+                    available: true,
                   },
-                  { id: "card", label: "Credit / Debit Card" },
-                  { id: "wallet", label: "Mobile Wallet (JazzCash / Easypaisa)" },
-                ] as { id: Order["paymentMethod"]; label: string }[]
+                  { id: "card", label: "Credit / Debit Card", available: false },
+                  {
+                    id: "wallet",
+                    label: "Mobile Wallet (JazzCash / Easypaisa)",
+                    available: false,
+                  },
+                ] as {
+                  id: Order["paymentMethod"];
+                  label: string;
+                  available: boolean;
+                }[]
               ).map((option) => (
                 <label
                   key={option.id}
-                  className="flex items-center gap-3 rounded-lg border border-border-strong bg-surface px-4 py-2.5 text-sm text-ink"
+                  className={`flex items-center gap-3 rounded-lg border border-border-strong px-4 py-2.5 text-sm ${
+                    option.available
+                      ? "bg-surface text-ink"
+                      : "cursor-not-allowed bg-bg-elevated text-faint"
+                  }`}
                 >
                   <input
                     type="radio"
                     name="payment"
+                    disabled={!option.available}
                     checked={paymentMethod === option.id}
                     onChange={() => setPaymentMethod(option.id)}
                     className="accent-gold"
                   />
-                  {option.label}
+                  <span className="flex-1">{option.label}</span>
+                  {!option.available && (
+                    <span className="rounded-full border border-border px-2 py-0.5 text-xs">
+                      Coming soon
+                    </span>
+                  )}
                 </label>
               ))}
             </div>
+            <p className="mt-2 text-xs text-muted">
+              Online payment isn&apos;t available yet — please pay on{" "}
+              {orderType === "delivery" ? "delivery" : "pickup"}.
+            </p>
           </div>
 
           {error && (

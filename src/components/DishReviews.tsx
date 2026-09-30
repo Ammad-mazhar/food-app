@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { StarIcon } from "@/components/icons";
 import { useAuth } from "@/context/AuthContext";
 
@@ -12,7 +11,11 @@ export type PublicReview = {
   author: string;
   comment: string | null;
   createdAt: string;
-  accountId: string | null;
+  /*
+   * Resolved on the server. The raw accountId used to be sent instead, which
+   * published a stable identifier for every reviewer to anyone who asked.
+   */
+  isMine: boolean;
 };
 
 function Stars({ value, className = "h-4 w-4" }: { value: number; className?: string }) {
@@ -43,19 +46,73 @@ export default function DishReviews({
   initialReviews: PublicReview[];
   initialAverage: number;
 }) {
-  const router = useRouter();
   /*
    * Read from context rather than passed in: the dish page is cached now, so
    * its HTML is shared by everyone and cannot say who is signed in.
    */
   const { account } = useAuth();
   const signedIn = account !== null;
-  const currentAccountId = account?.id ?? null;
+
+  const [reviews, setReviews] = useState<PublicReview[]>(initialReviews);
+  const [average, setAverage] = useState(initialAverage);
   const [rating, setRating] = useState(0);
   const [hovered, setHovered] = useState(0);
   const [comment, setComment] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+
+  /*
+   * The server render is a shared, cached snapshot: it cannot mark your own
+   * reviews, and it will not contain one you posted a moment ago. Refetching
+   * from the API — which does see the session, and is never cached — fixes
+   * both. router.refresh() cannot: on a prerendered route it can hand back the
+   * very cached payload we are trying to get past.
+   */
+  const fetchReviews = useCallback(async (): Promise<{
+    reviews: PublicReview[];
+    average: number;
+  } | null> => {
+    try {
+      const res = await fetch(
+        `/api/reviews?menuItemId=${encodeURIComponent(itemId)}`
+      );
+      if (!res.ok) return null;
+      const data = await res.json();
+      if (!Array.isArray(data.reviews)) return null;
+      return { reviews: data.reviews, average: data.average ?? 0 };
+    } catch {
+      // Offline, or the request was cut short. The server snapshot still shows.
+      return null;
+    }
+  }, [itemId]);
+
+  const reload = useCallback(async () => {
+    const fresh = await fetchReviews();
+    if (fresh) {
+      setReviews(fresh.reviews);
+      setAverage(fresh.average);
+    }
+  }, [fetchReviews]);
+
+  // Re-runs when sign-in state settles, because that is what decides which
+  // reviews come back marked as yours.
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      const fresh = await fetchReviews();
+      // Setting state after an await is asynchronous, so it does not cascade
+      // the way a synchronous call in this effect's body would.
+      if (!cancelled && fresh) {
+        setReviews(fresh.reviews);
+        setAverage(fresh.average);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchReviews, signedIn]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -78,7 +135,7 @@ export default function DishReviews({
       }
       setRating(0);
       setComment("");
-      router.refresh();
+      await reload();
     } catch {
       setError("Network problem — your review wasn't saved.");
     } finally {
@@ -92,7 +149,7 @@ export default function DishReviews({
       const res = await fetch(`/api/reviews?id=${encodeURIComponent(id)}`, {
         method: "DELETE",
       });
-      if (res.ok) router.refresh();
+      if (res.ok) await reload();
     } finally {
       setBusy(false);
     }
@@ -106,11 +163,11 @@ export default function DishReviews({
         <h2 className="font-display text-2xl font-bold text-ink">
           Reviews of {itemName}
         </h2>
-        {initialReviews.length > 0 && (
+        {reviews.length > 0 && (
           <span className="flex items-center gap-2 text-sm text-muted">
-            <Stars value={Math.round(initialAverage)} />
-            {initialAverage.toFixed(1)} from {initialReviews.length}{" "}
-            {initialReviews.length === 1 ? "review" : "reviews"}
+            <Stars value={Math.round(average)} />
+            {average.toFixed(1)} from {reviews.length}{" "}
+            {reviews.length === 1 ? "review" : "reviews"}
           </span>
         )}
       </div>
@@ -182,9 +239,9 @@ export default function DishReviews({
         </p>
       )}
 
-      {initialReviews.length > 0 && (
+      {reviews.length > 0 && (
         <ul className="mt-5 flex flex-col gap-3">
-          {initialReviews.map((r) => (
+          {reviews.map((r) => (
             <li key={r.id} className="rounded-2xl border border-border bg-surface p-4">
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -196,7 +253,7 @@ export default function DishReviews({
                 </div>
                 {/* Only your own review offers a delete control; the API
                     enforces the same rule regardless of what's rendered. */}
-                {r.accountId && r.accountId === currentAccountId && (
+                {r.isMine && (
                   <button
                     onClick={() => remove(r.id)}
                     disabled={busy}

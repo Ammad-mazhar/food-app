@@ -15,6 +15,7 @@ import {
 import MenuItemCard from "@/components/MenuItemCard";
 import StatCounter from "@/components/StatCounter";
 import DishCarousel from "@/components/DishCarousel";
+import HeroVideo from "@/components/HeroVideo";
 import {
   StarIcon,
   PinIcon,
@@ -74,17 +75,16 @@ export default function Home() {
     <div>
       {/* Hero — full-bleed video banner */}
       <section className="relative -mt-20 flex h-[94vh] min-h-150 w-full items-center overflow-hidden border-b border-border">
-        <video
-          className="absolute inset-0 h-full w-full object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="none"
+        {/*
+          Video on capable connections, the 69 KB poster otherwise — see
+          HeroVideo. The old element had autoPlay and preload="none" together,
+          which contradict, so every phone downloaded all 2.9 MB.
+        */}
+        <HeroVideo
+          src={heroVideo.src}
           poster={heroVideo.poster}
-        >
-          <source src={heroVideo.src} type="video/mp4" />
-        </video>
+          posterAlt="Steaks searing over an open flame in the Texas Steak House kitchen"
+        />
         {/* Scrim stays fully dark top to bottom. Fading it into the page's
             paper colour washed the video out into a grey haze. */}
         <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/45 to-black/55" />

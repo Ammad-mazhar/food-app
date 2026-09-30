@@ -102,7 +102,8 @@ export const ctaImage = {
  * where the video is *used*, not which file it is, so `cta-web.mp4` appearing
  * under `aboutHeroVideo` is deliberate rather than a mix-up.
  *
- * `about-banner-web.mp4` (the flambé shot) is now unused by any page.
+ * The flambé clip that used to live here has been deleted, along with the
+ * uncompressed originals — 46 MB of files no page ever loaded.
  */
 export const aboutHeroVideo = {
   src: "/images/cta-web.mp4",
@@ -112,11 +113,15 @@ export const aboutHeroVideo = {
 /**
  * Walkthrough video of the dining room (public/restaurant).
  *
- * ⚠️ This is the original 4K upload — roughly 22 MB. It is deliberately wired
- * up as click-to-play with `preload="none"` and a still poster, so a visitor
- * only downloads it if they ask for it. Do NOT move it into an autoplaying
- * banner until a compressed 1080p `-web.mp4` exists alongside it, the way
- * banner.mp4 / banner-web.mp4 are paired in public/images.
+ * ⚠️ This is the original 4K upload — roughly 21 MB, and the largest file in
+ * public/. It is deliberately wired up as click-to-play behind a still poster:
+ * VideoShowcase does not mount the <video> element at all until the visitor
+ * asks for it, so the file is never requested otherwise.
+ *
+ * Do NOT move it into an autoplaying banner until a compressed 1080p version
+ * exists alongside it. A <video> downloads whether or not it is on screen, and
+ * `preload="none"` does not save you — autoplay overrides it, which is exactly
+ * the bug that made the homepage 2.9 MB heavier than it needed to be.
  */
 export const tourVideo = {
   src: "/restaurant/13476222_3840_2160_25fps.mp4",

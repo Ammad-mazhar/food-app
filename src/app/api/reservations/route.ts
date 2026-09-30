@@ -76,6 +76,13 @@ export async function PATCH(request: Request) {
  * Availability is enforced by a unique index on (tableId, date, time), not by
  * an application-level check. Two people booking the same slot at the same
  * instant would both pass a "is it free?" query; only one can win the insert.
+ *
+ * WITH ONE GAP THAT HAD TO BE CLOSED IN CODE: tableId is nullable, and Postgres
+ * treats NULLs as distinct in a unique index. A booking with no table therefore
+ * slips past the constraint entirely, and unlimited ones can share a slot. This
+ * used to happen silently whenever no table fitted — including for any party
+ * larger than the biggest table, which no candidate can ever satisfy. The
+ * request is now refused instead, so a reservation always names a real table.
  */
 export async function POST(request: Request) {
   return handle(async () => {
@@ -128,6 +135,16 @@ export async function POST(request: Request) {
       });
       const takenIds = new Set(taken.map((t) => t.tableId));
       tableId = candidates.find((t) => !takenIds.has(t.id))?.id ?? null;
+
+      if (!tableId) {
+        // Distinguish "we have nothing that big at all" from "that hour is
+        // full", because the two need different things from the visitor.
+        return conflict(
+          candidates.length === 0
+            ? `We don't have a table that seats ${input.partySize}. Please call us to arrange a larger party.`
+            : "Every table is booked for that time. Please pick another slot."
+        );
+      }
     }
 
     try {
